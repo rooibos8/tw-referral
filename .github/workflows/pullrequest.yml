@@ -20,9 +20,8 @@ jobs:
         with:
           submodules: true
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7.16.0
+      - name: Install Node Modules
+        run: npm ci
 
       - name: Linting
         run: pnpm run lint
