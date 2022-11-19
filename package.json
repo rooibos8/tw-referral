@@ -1,22 +1,45 @@
 {
-  "name": "tw-referral",
+  "name": "next-ts-storybook",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
+    "clsx": "^1.2.1",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.3",
     "next": "13.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "recoil": "^0.7.6",
     "typescript": "4.9.3"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^7.0.0-alpha.50",
+    "@storybook/addon-interactions": "^7.0.0-alpha.50",
+    "@storybook/addon-links": "^7.0.0-alpha.50",
+    "@storybook/nextjs": "^7.0.0-alpha.50",
+    "@storybook/react": "^7.0.0-alpha.50",
+    "@storybook/testing-library": "^0.0.13",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-react": "^7.31.10",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-storybook": "^0.6.7",
+    "sass": "^1.56.1",
+    "sass-loader": "^13.2.0",
+    "storybook": "^7.0.0-alpha.50"
   }
 }

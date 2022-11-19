@@ -1,0 +1,12 @@
+{
+  "editor.largeFileOptimizations": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": true,
+    "source.fixAll.eslint": true
+  }
+}
