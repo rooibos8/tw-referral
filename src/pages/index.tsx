@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { TwitterIcon, Button } from '@/components';
-import styles from '@/styles/index.module.scss';
+import styles from '@/styles/pages/top.module.scss';
 
-type User = {
-  name: string;
-};
-
-const Page: React.FC = () => {
-  const [user, setUser] = React.useState<User>();
+export default function Top() {
+  const onClick = async () => {
+    const res = await fetch('/api/auth/twitter');
+    const { authUrl } = await res.json();
+    location.href = authUrl;
+  };
 
   return (
     <article>
@@ -25,13 +25,11 @@ const Page: React.FC = () => {
           １人で確認するのが大変ならみんなで結果をシェアすればいいじゃない！ ――
           制作
         </p>
-        <Button className={styles['login-btn']}>
+        <Button className={styles['login-btn']} onClick={onClick}>
           <TwitterIcon />
           アカウントでログイン
         </Button>
       </section>
     </article>
   );
-};
-
-export default Page;
+}
