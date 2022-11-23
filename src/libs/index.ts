@@ -4,6 +4,13 @@ import * as cotohaApi from './cotoha';
 import * as firestoreApi from './firebase/firestore';
 import * as twitterApi from './twitter';
 
+export type FetchParams =
+  | string
+  | string[][]
+  | Record<string, string>
+  | URLSearchParams
+  | undefined;
+
 export interface AppError {
   status?: number;
   statusText?: string;

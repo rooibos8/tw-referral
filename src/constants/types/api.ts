@@ -45,4 +45,10 @@ export type GetJudgeHistoryApiResponse = {
   };
 };
 
+export type GetTwitterListApiResponse = {
+  id: string;
+  name: string;
+  member_count: number;
+};
+
 export type PostApplyApiResponse = TwitterUserInfo;

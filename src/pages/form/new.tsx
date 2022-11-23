@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
 import { Button, BackButton } from '@/components';
+import * as api from '@/libs/api';
 import { sessionOptions } from '@/libs/session';
 
 export const getServerSideProps = withIronSessionSsr(async function ({
@@ -13,6 +14,15 @@ export const getServerSideProps = withIronSessionSsr(async function ({
     return {
       notFound: true,
     };
+  } else {
+    const res = await fetch(
+      `${process.env.NUEXT_PUBLIC_BASE_URL}/api/twitter/lists/${id}`
+    );
+    if (res.status === 404) {
+      return {
+        notFound: true,
+      };
+    }
   }
   return {
     props: {},
@@ -42,16 +52,12 @@ export default function New() {
 
   const handleClickOpen = async () => {
     try {
-      const res = await fetch('/api/form', {
-        method: 'POST',
-        body: JSON.stringify({
-          twListId: list.id,
-          importExistsAccount,
-        }),
-      });
-      const { newId } = await res.json();
-      setNewListFormId(newId);
-      setOpened(true);
+      const res = await api.openForm({ twListId: id, importExistsAccount });
+      if (res) {
+        const { newId } = res;
+        setNewListFormId(newId);
+        setOpened(true);
+      }
     } catch (err) {
       console.error(err);
     }

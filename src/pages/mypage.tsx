@@ -3,7 +3,9 @@ import { InferGetServerSidePropsType } from 'next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
-import { Form, GetFormApiResponse } from '@/constants';
+import { Form } from '@/constants';
+import * as api from '@/libs/api';
+
 import { sessionOptions } from '@/libs/session';
 
 export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
@@ -22,11 +24,10 @@ export default function Mypage({
 
   useEffect(() => {
     (async () => {
-      const res = await fetch('/api/form', {
-        redirect: 'follow',
-      });
-      const { data }: GetFormApiResponse = await res.json();
-      setLists(data);
+      const res = await api.getForms();
+      if (res) {
+        setLists(res.data);
+      }
     })();
   }, []);
 

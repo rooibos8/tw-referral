@@ -4,20 +4,23 @@ import React, { useEffect, useState } from 'react';
 
 import { BackButton } from '@/components';
 import { APPLY_STATUS, GetAppliersApiResponse } from '@/constants';
+import * as api from '@/libs/api';
 import { UserInfo } from '@/libs/firebase';
 
 export default function Appliers() {
   const router = useRouter();
-  const { listId } = router.query;
+  const { listId } = router.query as { listId: string };
   const [appliers, setAppliers] = useState<Array<UserInfo>>([]);
   useEffect(() => {
     if (!listId) return;
     (async () => {
-      const res = await fetch(`/api/form/appliers?id=${listId}`);
-      const { data }: GetAppliersApiResponse = await res.json();
-      setAppliers(
-        data.filter((d) => d.status === APPLY_STATUS.STAY).map((d) => d.user)
-      );
+      const res = await api.getAppliers(listId);
+      if (res) {
+        const { data } = res;
+        setAppliers(
+          data.filter((d) => d.status === APPLY_STATUS.STAY).map((d) => d.user)
+        );
+      }
     })();
   }, [listId]);
 

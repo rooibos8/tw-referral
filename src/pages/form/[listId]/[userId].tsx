@@ -6,19 +6,14 @@ import React, { useEffect, useState } from 'react';
 import { getServerSideProps } from './apply';
 
 import { Button, BackButton } from '@/components';
-import {
-  APPLY_STATUS,
-  GetJudgeHistoryApiResponse,
-  GetTwitterProfileApiResponse,
-} from '@/constants';
+import { GetTwitterProfileApiResponse } from '@/constants';
+import * as api from '@/libs/api';
 import { JudgeHistoryDoc, UserDoc, UserInfo } from '@/libs/firebase';
 import { TwitterProfile } from '@/libs/twitter';
 
-export default function New({
-  appliers,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function New() {
   const router = useRouter();
-  const { userId, listId } = router.query;
+  const { userId, listId } = router.query as { userId: string; listId: string };
   const [opened, setOpened] = useState<boolean>(false);
   const [selected, setSelected] = useState<GetTwitterProfileApiResponse>();
   const [applier, setApplier] = useState<
@@ -40,14 +35,16 @@ export default function New({
     if (!userId) return;
 
     (async () => {
-      const res = await fetch(`/api/twitter/${userId}`);
-      const data: GetTwitterProfileApiResponse = await res.json();
-      setApplier(data);
+      const data = await api.getTwitterProfile(userId);
+      if (data) {
+        setApplier(data);
+      }
     })();
 
     (async () => {
-      const res = await fetch(`/api/history/${userId}`);
-      const { data }: GetJudgeHistoryApiResponse = await res.json();
+      const res = await api.getJudgeHistory(userId);
+      if (!res) return;
+      const { data } = res;
       setAllowedHistory(data.allowed);
       setDeniedHistory(data.denied);
       setJudge({
@@ -63,26 +60,12 @@ export default function New({
   };
 
   const handleClickAllow = async () => {
-    await fetch('/api/form/apply', {
-      method: 'PUT',
-      body: JSON.stringify({
-        listId,
-        applierId: userId,
-        status: APPLY_STATUS.ALLOW,
-      }),
-    });
+    await api.allowApply({ listId, applierId: userId });
     router.push(`/form/${listId}`);
   };
 
   const handleClickDeny = async () => {
-    await fetch('/api/form/apply', {
-      method: 'PUT',
-      body: JSON.stringify({
-        listId,
-        applierId: userId,
-        status: APPLY_STATUS.DENY,
-      }),
-    });
+    await api.denyApply({ listId, applierId: userId });
     router.push(`/form/${listId}`);
   };
 

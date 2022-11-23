@@ -13,6 +13,7 @@ import type {
   TwitterPutListMemberApiResponse,
   TwitterGetOwnedApiResponse,
 } from './types';
+import type { FetchParams } from '@/libs';
 import type { NextApiRequest } from 'next';
 
 const STATE = process.env.TWITTER_CLIENT_ID as string;
@@ -28,17 +29,10 @@ const PARAMS_USER_FIELDS = {
   'user.fields': 'id,name,username,profile_image_url',
 };
 
-type Params =
-  | string
-  | string[][]
-  | Record<string, string>
-  | URLSearchParams
-  | undefined;
-
 const _get = async <R>(
   token: string,
   url: string,
-  params?: Params
+  params?: FetchParams
 ): Promise<R> => {
   try {
     const fullUrl = `${process.env.TWITTER_API_V2_URL}${url}${
@@ -68,7 +62,7 @@ const _post = async <R>(
     params,
     body,
   }: {
-    params?: Params;
+    params?: FetchParams;
     body?: Record<string, string | number>;
   }
 ): Promise<R> => {

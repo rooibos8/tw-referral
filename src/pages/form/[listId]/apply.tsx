@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 
 import { BackButton } from '@/components';
 import { PostApplyApiResponse } from '@/constants';
+import * as api from '@/libs/api';
 import {
   hasSessionExpired,
   isValidSession,
@@ -14,7 +15,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({
   req,
   query,
 }) {
-  const { listId }: { listId?: string } = query;
+  const { listId } = query as { listId?: string };
   if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
     req.session.destroy();
     return { props: { listId: listId as string, needAuth: true } };
@@ -62,13 +63,11 @@ export default function Apply({
   useEffect(() => {
     if (needAuth) {
       (async () => {
-        const res = await fetch(
-          `/api/auth/me?returnUrl=${encodeURIComponent(
-            `/form/${listId}/apply`
-          )}`
-        );
-        const { authUrl } = await res.json();
-        location.href = authUrl;
+        const res = await api.getAuthLink(`/form/${listId}/apply`);
+        if (res) {
+          const { authUrl } = res;
+          location.href = authUrl;
+        }
       })();
     }
   }, []);
