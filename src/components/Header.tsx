@@ -1,7 +1,22 @@
+import { useRouter } from 'next/router';
 import React from 'react';
 
-// import styles from '@/styles/components/header.module.scss';
+const Header = () => {
+  const router = useRouter();
 
-const Header = () => <header>tw-referral</header>;
+  const handleClickSignOut = async () => {
+    await fetch('/api/auth/me', {
+      method: 'DELETE',
+    });
+    router.push('/');
+  };
+
+  return (
+    <header>
+      <p></p>tw-referral
+      <button onClick={handleClickSignOut}>サインアウト</button>
+    </header>
+  );
+};
 
 export { Header };

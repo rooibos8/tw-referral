@@ -1,11 +1,14 @@
 import React from 'react';
 
 import { TwitterIcon, Button } from '@/components';
+
 import styles from '@/styles/pages/top.module.scss';
 
 export default function Top() {
   const onClick = async () => {
-    const res = await fetch('/api/auth/twitter');
+    const res = await fetch(
+      `/api/auth/me?returnUrl=${encodeURIComponent('/mypage')}`
+    );
     const { authUrl } = await res.json();
     location.href = authUrl;
   };

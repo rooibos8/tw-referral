@@ -19,10 +19,12 @@ const getCotohaApiAccessToken = async (): Promise<string> => {
     }
   );
   updateAppSetting({
-    cotoha_access_token: data.access_token,
-    cotoha_expires_at: Timestamp.fromDate(
-      new Date(Date.now() + Number(data.expires_in) * 1000)
-    ),
+    cotoha: {
+      access_token: data.access_token,
+      expires_at: Timestamp.fromDate(
+        new Date(Date.now() + Number(data.expires_in) * 1000)
+      ),
+    },
   });
   return data.access_token;
 };
@@ -36,11 +38,11 @@ const getAgeEstimate = async (
   let token = '';
   if (
     typeof doc === 'undefined' ||
-    doc.cotoha_expires_at.toDate() < new Date()
+    doc.cotoha.expires_at.toDate() < new Date()
   ) {
     token = await getCotohaApiAccessToken();
   } else {
-    token = doc.cotoha_access_token;
+    token = doc.cotoha.access_token;
   }
   const {
     data: { result },
@@ -57,9 +59,13 @@ const getAgeEstimate = async (
       },
     }
   );
-  const [min, max] = result.age.replace('歳', '').split('-');
+  const [min, max] =
+    typeof result.age !== 'undefined'
+      ? result.age.replace('歳', '').split('-')
+      : [null, null];
 
   return { min: Number(min), max: Number(max) };
 };
 
 export { getAgeEstimate };
+export * from './types';

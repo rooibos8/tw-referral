@@ -1,40 +1,32 @@
+import { withIronSessionSsr } from 'iron-session/next';
+import { InferGetServerSidePropsType } from 'next';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
 
-import type { TwitterLists } from '@/libs/twitter';
-import type { GetServerSidePropsContext } from 'next';
+import { Form, GetFormApiResponse } from '@/constants';
+import { sessionOptions } from '@/libs/session';
 
-import { auth as globalAuth } from '@/store';
+export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
+  const { profile_image_url } = req.session.twitter.profile;
+  return {
+    props: {
+      profileImageUrl: profile_image_url,
+    },
+  };
+}, sessionOptions);
 
-type PageProps = {
-  code: string;
-  state: string;
-};
-
-export async function getServerSideProps(
-  context: GetServerSidePropsContext<{ code: string; state: string }>
-): Promise<{ props: PageProps | {} }> {
-  const { code, state } = context.query ?? {};
-  return { props: { code, state } };
-}
-
-export default function Auth({ code, state }: PageProps) {
-  const [auth, setAuth] = useRecoilState(globalAuth);
-  const [lists, setLists] = useState<TwitterLists>([]);
-  const [profileImageUrl, setProfileImageUrl] = useState<string>('');
+export default function Mypage({
+  profileImageUrl,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const [lists, setLists] = useState<Array<Form>>([]);
 
   useEffect(() => {
-    if (auth.isFetching) return;
-
-    setAuth({ ...auth, isFetching: true });
     (async () => {
-      const res = await fetch(`/api/auth/me?code=${code}&state=${state}`);
-      const { profile_image_url, lists } = await res.json();
-
-      setLists(lists);
-      setProfileImageUrl(profile_image_url);
-
-      setAuth({ ...auth, isFetching: false });
+      const res = await fetch('/api/form', {
+        redirect: 'follow',
+      });
+      const { data }: GetFormApiResponse = await res.json();
+      setLists(data);
     })();
   }, []);
 
@@ -42,9 +34,18 @@ export default function Auth({ code, state }: PageProps) {
     <div>
       <img src={profileImageUrl} alt="profile_image" />
       {lists.map((list) => (
-        <div key={list.id}>{list.name}</div>
+        <div key={list.id}>
+          {list.id ? (
+            <Link href={`/form/${list.id}`}>{list.name}</Link>
+          ) : (
+            <Link
+              href={`/form/new?id=${list.twitter.id}&name=${list.twitter.name}`}
+            >
+              {list.name}
+            </Link>
+          )}
+        </div>
       ))}
-      成功です！
     </div>
   );
 }

@@ -1,37 +1,69 @@
+import type { ListFormStatus, ApplyStatus } from '@/constants';
 import type { Timestamp } from 'firebase/firestore/lite';
 
-type UserDoc = {
-  id?: string;
-  tw_id: string;
-  tw_name: string;
-  tw_username: string;
-  tw_profile_image_url: string;
-  allowed: number;
-  denied: number;
-  ai_guessed_age_gt: number;
-  ai_guessed_age_ls: number;
-  language: string;
+type BaseProperty = {
+  created_at: Timestamp;
+  updated_at: Timestamp;
 };
 
-type FormsDoc = {
+export type TwitterUserInfo = {
   id: string;
-  user_id: string;
-  tw_list_id: string;
-  tw_list_name: string;
-  // member_count: number;
-  status: 1 | 2 | 3; // 1=受付中、2==停止中、3=終了
+  name: string;
+  username: string;
+  profile_image_url: string;
 };
 
-type ScoreHistoryDoc = {
-  id: string;
-  user_id: string;
-  list_id: string;
-  status: 1 | 2 | 3 | 4; // 1=待機、2=許可、3=却下、4=取り消し
+export type UserInfo = {
+  doc_id: string;
+  ai_guessed_age_gt: number | null;
+  ai_guessed_age_ls: number | null;
+  twitter: TwitterUserInfo;
 };
 
-type AppSettingsDoc = {
-  cotoha_access_token: string;
-  cotoha_expires_at: Timestamp;
+export type UserDoc = {
+  doc_id: string;
+  twitter_id: string;
+  data: Omit<UserInfo, 'doc_id'> & {
+    language?: string;
+  } & BaseProperty;
 };
 
-export type { UserDoc, FormsDoc, ScoreHistoryDoc, AppSettingsDoc };
+export type ListFormDoc = {
+  doc_id: string;
+  twitter_list_id: string;
+  data: {
+    user: {
+      doc_id: string;
+      twitter: TwitterUserInfo;
+    };
+    status: ListFormStatus;
+    twitter: {
+      list_id: string;
+      list_name: string;
+    };
+  } & BaseProperty;
+};
+
+export type ListFormApplierDoc = {
+  doc_id: string;
+  user_doc_id: string;
+  data: {
+    user: UserInfo;
+    status: ApplyStatus;
+  } & BaseProperty;
+};
+
+export type JudgeHistoryDoc = {
+  doc_id: string;
+  data: {
+    twitter: TwitterUserInfo;
+    judged_at: Timestamp;
+  };
+};
+
+export type AppSettingsDoc = {
+  cotoha: {
+    access_token: string;
+    expires_at: Timestamp;
+  };
+};

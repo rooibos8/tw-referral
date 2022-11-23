@@ -1,16 +1,18 @@
-type TwitterUser = {
+export type TwitterUser = {
   id: string;
   name: string;
   username: string;
   profile_image_url: string;
 };
 
-type TwitterLists = Array<{
+export type TwitterLists = Array<{
   id: string;
   name: string;
 }>;
 
-type TwitterGetAccessTokenRequestParams = {
+export type TwitterListMembers = Array<TwitterUser>;
+
+export type TwitterGetAccessTokenRequestParams = {
   code?: string;
   grant_type: 'authorization_code' | 'refresh_token';
   client_id: string;
@@ -19,25 +21,31 @@ type TwitterGetAccessTokenRequestParams = {
   refresh_token?: string;
 };
 
-type TwitterGetOwnedApiResponse = {
+export type TwitterGetOwnedApiResponse = {
   data: Array<{
     id: string;
     name: string;
   }>;
 };
 
-type TwitterGetMeApiResponse = {
-  data: TwitterUser;
+export type TwitterGetMeApiResponse = {
+  data: {
+    id: string;
+    name: string;
+    username: string;
+    profile_image_url: string;
+  };
 };
 
-type TwitterGetAccessTokenApiResponse = {
+export type TwitterGetAccessTokenApiResponse = {
   token_type: 'bearer';
   expires_in: number;
   access_token: string;
   scope: string;
+  refresh_token: string;
 };
 
-type TwitterGetTweetsApiResponse = {
+export type TwitterGetTweetsApiResponse = {
   data: Array<{
     id: string;
     edit_history_tweet_ids: Array<string>;
@@ -45,12 +53,46 @@ type TwitterGetTweetsApiResponse = {
   }>;
 };
 
-export type {
-  TwitterGetMeApiResponse,
-  TwitterGetOwnedApiResponse,
-  TwitterGetAccessTokenApiResponse,
-  TwitterGetTweetsApiResponse,
-  TwitterUser,
-  TwitterLists,
-  TwitterGetAccessTokenRequestParams,
+export type TwitterProfile = {
+  id: string;
+  public_metrics: {
+    followers_count: number;
+    following_count: number;
+    tweet_count: number;
+    listed_count: number;
+  };
+  url: string;
+  description: string;
+  verified: boolean;
+  protected: boolean;
+  created_at: string;
+  username: string;
+  name: string;
+  profile_image_url: string;
+};
+
+export type TwitterGetUserApiResponse = {
+  data: TwitterProfile;
+};
+
+export type TwitterGetListMembersApiResponse = {
+  data: Array<TwitterUser>;
+  meta: {
+    result_count: number;
+    next_token: string;
+  };
+};
+
+export type TwitterPutListMemberApiResponse = {
+  data: {
+    is_member: boolean;
+  };
+};
+
+export type TwitterGetListByIdApiResponse = {
+  data: {
+    id: string;
+    name: string;
+    member_count: number;
+  };
 };
