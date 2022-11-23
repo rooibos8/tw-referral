@@ -44,7 +44,11 @@ export const withApiErrorHandler = <T>(
         res.redirect(429, '/429');
       }
       if (_e.status && _e.statusText) {
-        res.status(500).send({ errorMessage: _e.statusText });
+        if (_e.status === 404) {
+          res.status(404).send({ errorMessage: _e.statusText });
+        } else {
+          res.status(500).send({ errorMessage: _e.statusText });
+        }
       } else {
         res.status(500).send({ errorMessage: 'something happen.' });
       }

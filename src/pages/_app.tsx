@@ -8,7 +8,7 @@ import { RecoilRoot } from 'recoil';
 import type { AppProps } from 'next/app';
 
 import { ErrorBoundary } from '@/components';
-import Layout from '@/components/Layout';
+import Layout from '@/components/provider/Layout';
 
 export default appWithTranslation(function App({
   Component,

@@ -1,45 +1,52 @@
 import { Checkbox } from '@mantine/core';
-import { CopyButton, Button as MTButton } from '@mantine/core';
-import { TextInput } from '@mantine/core';
-import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { Share as ShareTweet } from 'react-twitter-widgets';
 
 import { useRecoilState } from 'recoil';
 
-import { Button, BackButton } from '@/components/buttons';
-import { Text } from '@/components/core';
+import { Button, BackButton, UrlCopy } from '@/components';
 import * as api from '@/libs/api';
 import { withSessionSsr } from '@/libs/session/client';
 import { uiState } from '@/store';
 
 import styles from '@/styles/pages/form/new.module.scss';
 
-// @ts-ignore
-export const getServerSideProps = withSessionSsr(async ({ query }) => {
-  const { id, name } = query;
-  if (typeof id !== 'string' || typeof name !== 'string') {
-    console.log('id name not exists');
-    return {
-      notFound: true,
-    };
-  } else {
-    console.log('lost does not exists');
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/twitter/lists/${id}`
-    );
-    if (res.status === 404) {
+export const getServerSideProps = withSessionSsr(
+  // @ts-ignore
+  async ({ query, req, res }) => {
+    const { id, name } = query;
+    if (typeof id !== 'string' || typeof name !== 'string') {
+      console.log('id name not exists');
       return {
         notFound: true,
       };
+    } else {
+      console.log('lost does not exists');
+      const listRes = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/twitter/lists/${id}`,
+        {
+          headers: {
+            cookie: req.headers.cookie as string,
+          },
+        }
+      );
+      const setCookie = listRes.headers.get('set-cookie');
+      if (setCookie !== null) {
+        res.setHeader('set-cookie', setCookie);
+      }
+
+      if (listRes.status === 404) {
+        return {
+          notFound: true,
+        };
+      }
     }
+    return {
+      props: {},
+    };
   }
-  return {
-    props: {},
-  };
-});
+);
 
 export default function New() {
   const { t } = useTranslation();
@@ -60,7 +67,8 @@ export default function New() {
       id,
       name,
     });
-  }, []);
+  }, [id, name]);
+
   useEffect(() => {
     if (ui.isLoading && formUrl !== '') {
       setUi({ isLoading: false });
@@ -108,37 +116,7 @@ export default function New() {
           <div className={styles['main-message']}>
             <h3>{t('openedForm')}</h3>
           </div>
-          <div className={styles.share}>
-            <div>
-              <ShareTweet url={formUrl} options={{ size: 'large' }} />
-            </div>
-            <div>
-              <Text>{t('or')}</Text>
-            </div>
-            <div className={styles['share-copy']}>
-              <TextInput
-                classNames={{
-                  root: styles['copy-url-root'],
-                  input: styles['copy-url-input'],
-                }}
-                variant="unstyled"
-                value={formUrl}
-              />
-              <CopyButton value={formUrl}>
-                {({ copied, copy }) => (
-                  <MTButton
-                    className={clsx({
-                      [styles['copy-button-copied']]: copied,
-                      [styles['copy-button']]: !copied,
-                    })}
-                    onClick={copy}
-                  >
-                    {copied ? t('copiedUrl') : t('doCopyUrl')}
-                  </MTButton>
-                )}
-              </CopyButton>
-            </div>
-          </div>
+          <UrlCopy url={formUrl} />
         </div>
       )}
     </>

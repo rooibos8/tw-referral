@@ -10,5 +10,7 @@
   "doTweet": "트윗하기",
   "doCopy": "URL을 복사하기",
   "copiedUrl": "URL을 복사했습니다",
-  "noList": "리스트를 작성하지 않으셨나봐요."
+  "noList": "리스트를 작성하지 않으셨나봐요.",
+  "navigateToTwitterAuth": "Twitter認証へ移動します...",
+  "applied": "参加を申請しました！"
 }

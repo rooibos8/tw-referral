@@ -28,9 +28,13 @@ const authMe = withApiErrorHandler<{
     let userId: string = '';
     if (typeof userDoc === 'undefined') {
       const tweets = await twitterApi.findTweets(token.token, token.profile.id);
-      const { min, max } = await cotohaApi.getAgeEstimate(
-        tweets.map((tweet) => tweet.text)
-      );
+      let min = null;
+      let max = null;
+      if (typeof tweets !== 'undefined' && tweets.length > 0) {
+        ({ min, max } = await cotohaApi.getAgeEstimate(
+          tweets.map((tweet) => tweet.text)
+        ));
+      }
       userId = await firestoreApi.createUser({
         twitter_id: token.profile.id,
         data: {

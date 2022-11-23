@@ -7,8 +7,7 @@ import { useRecoilValue } from 'recoil';
 
 import styles from './style.module.scss';
 
-import { Title } from '@/components/core';
-import { FlagIcon } from '@/components/icons';
+import { FlagIcon, UserIcon, Title } from '@/components';
 import { sessionState } from '@/store';
 
 const Header = () => {
@@ -53,12 +52,7 @@ const Header = () => {
           <Menu position="bottom-start" withArrow>
             <Menu.Target>
               <div>
-                <Image
-                  width={38}
-                  height={38}
-                  src={session.twitter.profile.profileImageUrl ?? ''}
-                  alt="Picture of the user"
-                />
+                <UserIcon src={session.twitter.profile.profileImageUrl ?? ''} />
               </div>
             </Menu.Target>
             <Menu.Dropdown>

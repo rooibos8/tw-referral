@@ -1,0 +1,46 @@
+@import '@/styles/variables.module.scss';
+.share {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.share-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+  width: 80%;
+}
+
+.copy-url-root {
+  width: 100%;
+}
+
+.copy-url-input {
+  background-color: $default-color;
+  border-radius: 5px;
+}
+
+.copy-button {
+  background-color: $default-color;
+  color: $black-color;
+  border: none;
+  &:active {
+    background-color: $black-light-color;
+    color: $black-color;
+  }
+}
+
+.copy-button-copied {
+  background-color: $primary-color;
+  color: $default-color;
+  border: none;
+  &:active {
+    background-color: $primary-color;
+    color: $default-color;
+  }
+}

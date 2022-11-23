@@ -4,9 +4,9 @@ import React from 'react';
 
 import { TwitterIcon, Button } from '@/components';
 
+import * as api from '@/libs/api';
 import { withSessionSsr } from '@/libs/session/client';
 import styles from '@/styles/pages/top.module.scss';
-
 // @ts-ignore
 export const getServerSideProps = withSessionSsr();
 
@@ -19,11 +19,14 @@ export const getServerSideProps = withSessionSsr();
 export default function Top() {
   const { t } = useTranslation();
   const onClick = async () => {
-    const res = await fetch(
-      `/api/auth/me?returnUrl=${encodeURIComponent('/mypage')}`
-    );
-    const { authUrl } = await res.json();
-    location.href = authUrl;
+    const res = await api.getAuthLink('/mypage');
+    if (res) {
+      location.href = res.authUrl;
+    }
+    // const res = await fetch(
+    //   `/api/auth/me?returnUrl=${encodeURIComponent('/mypage')}`
+    // );
+    // const { authUrl } = await res.json();
   };
 
   return (

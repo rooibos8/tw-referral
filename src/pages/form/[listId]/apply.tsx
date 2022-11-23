@@ -1,28 +1,34 @@
-import { withIronSessionSsr } from 'iron-session/next';
 import { InferGetServerSidePropsType } from 'next';
+import { useTranslation } from 'next-i18next';
 import React, { useEffect } from 'react';
 
-import { BackButton } from '@/components';
+import { BackButton, Loading, Title, UserIcon } from '@/components';
 import { PostApplyApiResponse } from '@/constants';
 import * as api from '@/libs/api';
-import {
-  hasSessionExpired,
-  isValidSession,
-  sessionOptions,
-} from '@/libs/session';
+import { hasSessionExpired, isValidSession } from '@/libs/session';
 import { withSessionSsr } from '@/libs/session/client';
+
+import styles from '@/styles/pages/form/[listId]/apply.module.scss';
 
 // @ts-ignore
 export const getServerSideProps = withSessionSsr(async function ({
   req,
+  res,
   query,
 }) {
   const { listId } = query as { listId?: string };
   if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
     req.session.destroy();
-    return { props: { listId: listId as string, needAuth: true } };
+    return {
+      props: {
+        listId: listId as string,
+        needAuth: true,
+        isAvailable: false,
+        notFound: false,
+      },
+    };
   }
-  const res = await fetch(
+  const applyRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/form/apply`,
     {
       method: 'POST',
@@ -32,7 +38,27 @@ export const getServerSideProps = withSessionSsr(async function ({
       },
     }
   );
-  if (!res.ok) {
+  const setCookie = applyRes.headers.get('set-cookie');
+  if (setCookie !== null) {
+    res.setHeader('set-cookie', setCookie);
+  }
+
+  if (applyRes.status === 406) {
+    return {
+      props: {
+        notFound: false,
+        needAuth: false,
+        isAvailable: false,
+      },
+    };
+  } else if (applyRes.status === 404) {
+    return {
+      props: {
+        notFound: true,
+      },
+    };
+  }
+  if (!applyRes.ok || typeof applyRes === 'undefined') {
     return {
       redirect: {
         destination: '/',
@@ -40,8 +66,9 @@ export const getServerSideProps = withSessionSsr(async function ({
       },
     };
   }
+
   const { name, username, profile_image_url }: PostApplyApiResponse =
-    await res.json();
+    await applyRes.json();
 
   return {
     props: {
@@ -50,6 +77,8 @@ export const getServerSideProps = withSessionSsr(async function ({
       name,
       userName: username,
       profileImageUrl: profile_image_url,
+      isAvailable: true,
+      notFound: false,
     },
   };
 });
@@ -60,7 +89,10 @@ export default function Apply({
   userName,
   profileImageUrl,
   needAuth,
+  isAvailable,
+  notFound,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (needAuth) {
       (async () => {
@@ -75,16 +107,33 @@ export default function Apply({
 
   return (
     <div>
-      <BackButton href="/mypage">戻る</BackButton>
-      {needAuth === true ? (
-        <>Twitter認証へ移動します...</>
-      ) : (
-        <>
-          <img src={profileImageUrl as string} alt="profile image" />
-          {name} {userName}
-          参加を申請しました！
-        </>
-      )}
+      <BackButton href="/mypage" />
+      <div className={styles.container}>
+        {notFound ? (
+          <div className={styles['main-message']}>
+            <h1>{t('notFoundTitle')}</h1>
+            <h3>{t('listNotFoundMessage')}</h3>
+          </div>
+        ) : needAuth === true ? (
+          <>
+            <h3>{t('navigateToTwitterAuth')}</h3>
+            <Loading />
+          </>
+        ) : (
+          <>
+            <div className={styles['main-message']}>
+              <UserIcon src={profileImageUrl ?? ''} size={120} />
+              <div>
+                <Title className={styles['user-name']}>{name}</Title>
+                <span>{userName}</span>
+              </div>
+            </div>
+            <div className={styles['sub-message']}>
+              <h3>{isAvailable ? t('applied') : t('notAvailableList')}</h3>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

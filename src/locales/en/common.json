@@ -10,5 +10,7 @@
   "doTweet": "Tweet",
   "doCopyUrl": "Copy url",
   "copiedUrl": "Copied url",
-  "noList": "It seems like you don't have any list."
+  "noList": "It seems like you don't have any list.",
+  "navigateToTwitterAuth": "Twitter認証へ移動します...",
+  "applied": "参加を申請しました！"
 }

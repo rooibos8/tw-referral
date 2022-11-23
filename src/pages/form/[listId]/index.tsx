@@ -1,19 +1,25 @@
+import { Menu, Menu as MTMenu } from '@mantine/core';
+import { Modal } from '@mantine/core';
+import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
-import { BackButton } from '@/components';
-import { APPLY_STATUS, GetAppliersApiResponse } from '@/constants';
+import { BackButton, MenuIcon, UrlCopy } from '@/components';
+import { APPLY_STATUS } from '@/constants';
 import * as api from '@/libs/api';
 import { UserInfo } from '@/libs/firebase';
 import { withSessionSsr } from '@/libs/session/client';
 
+import styles from '@/styles/pages/form/[listId]/index.module.scss';
 export const getServerSideProps = withSessionSsr();
 
 export default function Appliers() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { listId } = router.query as { listId: string };
   const [appliers, setAppliers] = useState<Array<UserInfo>>([]);
+  const [openedCopyModal, setOpenedCopyModal] = useState<boolean>(false);
   useEffect(() => {
     if (!listId) return;
     (async () => {
@@ -29,7 +35,37 @@ export default function Appliers() {
 
   return (
     <div>
-      <BackButton href="/mypage">戻る</BackButton>
+      <div className={styles['sub-header']}>
+        <BackButton href="/mypage">{t('back')}</BackButton>
+        <MTMenu position="bottom-end" withArrow>
+          <Menu.Target>
+            <div>
+              <MenuIcon />
+            </div>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => setOpenedCopyModal(true)}>
+              {t('doCopyUrl')}
+            </Menu.Item>
+          </Menu.Dropdown>
+        </MTMenu>
+      </div>
+      <Modal
+        opened={openedCopyModal}
+        onClose={() => setOpenedCopyModal(false)}
+        fullScreen
+        transition="slide-up"
+        trapFocus
+        classNames={{
+          modal: styles['modal'],
+          close: styles['modal-close'],
+        }}
+      >
+        <UrlCopy
+          url={`${process.env.NEXT_PUBLIC_BASE_URL}/form/${listId}/apply`}
+        />
+      </Modal>
+
       {appliers.length > 0 ? (
         <>
           {appliers.map((applier, i) => (
@@ -51,7 +87,7 @@ export default function Appliers() {
           ))}
         </>
       ) : (
-        <>おめでとうございます！</>
+        <h3>おめでとうございます！</h3>
       )}
     </div>
   );

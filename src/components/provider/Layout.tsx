@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 
-import { Header, Loading } from '@/components';
+import { Header, LoadingOverLay } from '@/components';
 import { SessionState, sessionState, uiState } from '@/store';
 import styles from '@/styles/components/layout.module.scss';
 
@@ -22,7 +22,7 @@ export default function Layout({ session, children }: LayoutProps) {
   return (
     <>
       <Header />
-      {ui.isLoading ? <Loading /> : null}
+      {ui.isLoading ? <LoadingOverLay /> : null}
       <main className={styles.main}>{children}</main>
     </>
   );

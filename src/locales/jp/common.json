@@ -10,5 +10,10 @@
   "doTweet": "ツイートする",
   "doCopyUrl": "URLをコピーする",
   "copiedUrl": "URLをコピーしました",
-  "noList": "リストを作成していないようですね"
+  "noList": "リストを作成していないようですね",
+  "navigateToTwitterAuth": "Twitter認証へ移動します...",
+  "applied": "参加を申請しました！",
+  "notAvailableList": "このリストは受付を停止しています",
+  "notFoundTitle": "404 Not Found",
+  "listNotFoundMessage": "存在しない、または公開されていないリトです"
 }

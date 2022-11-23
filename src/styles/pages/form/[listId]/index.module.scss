@@ -1,0 +1,16 @@
+@import '@/styles/variables.module.scss';
+
+.modal {
+  background-color: $gray;
+}
+
+.modal-close {
+  color: $default-color;
+}
+
+.sub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
