@@ -6,6 +6,9 @@ import { BackButton } from '@/components';
 import { APPLY_STATUS, GetAppliersApiResponse } from '@/constants';
 import * as api from '@/libs/api';
 import { UserInfo } from '@/libs/firebase';
+import { withSessionSsr } from '@/libs/session/client';
+
+export const getServerSideProps = withSessionSsr();
 
 export default function Appliers() {
   const router = useRouter();

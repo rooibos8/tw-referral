@@ -1,10 +1,23 @@
+import { useTranslation } from 'next-i18next';
+// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import React from 'react';
 
 import { TwitterIcon, Button } from '@/components';
 
+import { withSessionSsr } from '@/libs/session/client';
 import styles from '@/styles/pages/top.module.scss';
 
+// @ts-ignore
+export const getServerSideProps = withSessionSsr();
+
+// export const getServerSideProps = withSessionSsr(async ({ locale }) => ({
+//   props: {
+//     ...(await serverSideTranslations(locale ?? 'jp', ['common'])),
+//   },
+// }));
+
 export default function Top() {
+  const { t } = useTranslation();
   const onClick = async () => {
     const res = await fetch(
       `/api/auth/me?returnUrl=${encodeURIComponent('/mypage')}`
@@ -30,7 +43,7 @@ export default function Top() {
         </p>
         <Button className={styles['login-btn']} onClick={onClick}>
           <TwitterIcon />
-          アカウントでログイン
+          {t('login')}
         </Button>
       </section>
     </article>

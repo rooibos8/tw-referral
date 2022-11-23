@@ -12,6 +12,7 @@ import type {
   TwitterGetUserApiResponse,
   TwitterPutListMemberApiResponse,
   TwitterGetOwnedApiResponse,
+  TwitterProfile,
 } from './types';
 import type { FetchParams } from '@/libs';
 import type { NextApiRequest } from 'next';
@@ -33,7 +34,7 @@ const _get = async <R>(
   token: string,
   url: string,
   params?: FetchParams
-): Promise<R> => {
+): Promise<R | undefined> => {
   try {
     const fullUrl = `${process.env.TWITTER_API_V2_URL}${url}${
       typeof params !== 'undefined' ? `?${new URLSearchParams(params)}` : ''
@@ -44,6 +45,9 @@ const _get = async <R>(
       },
     });
     const data: R = await res.json();
+    console.log(res.status);
+    console.log(res.statusText);
+    console.log(data);
     if (!res.ok) {
       console.log(`'Failed getting twitter data : ${fullUrl}`);
       throw { status: res.status, statusText: res.statusText, data };
@@ -176,7 +180,9 @@ export const getAccessToken = async (
   };
   if (typeof profile === 'undefined') {
     const me = await findMe(accessToken);
-    req.session.twitter.profile = me;
+    if (typeof me !== 'undefined') {
+      req.session.twitter.profile = me;
+    }
   }
 
   if (save) {
@@ -202,59 +208,66 @@ export const generateAuthLinkV2 = ({
     .replace(/\//g, '_')}&code_challenge_method=S256`;
 };
 
-export const findMe = async (token: string): Promise<TwitterUser> => {
-  const { data } = await _get<TwitterGetMeApiResponse>(
+export const findMe = async (
+  token: string
+): Promise<TwitterUser | undefined> => {
+  const res = await _get<TwitterGetMeApiResponse>(
     token,
     '/users/me',
     PARAMS_USER_FIELDS
   );
-  return data;
+  return res?.data;
 };
 
 export const findOwnedList = async (
   token: string,
   tw_id: string
-): Promise<TwitterLists> => {
-  const { data } = await _get<TwitterGetOwnedApiResponse>(
+): Promise<TwitterLists | undefined> => {
+  const res = await _get<TwitterGetOwnedApiResponse>(
     token,
     `/users/${tw_id}/owned_lists`,
     {
       'list.fields': 'member_count',
     }
   );
-  return data;
+  return res?.data;
 };
 
 export const findTweets = async (
   token: string,
   tw_user_id: string
-): Promise<Array<{ id: string; text: string }>> => {
-  const { data } = await _get<TwitterGetTweetsApiResponse>(
+): Promise<Array<{ id: string; text: string }> | undefined> => {
+  const res = await _get<TwitterGetTweetsApiResponse>(
     token,
     `/users/${tw_user_id}/tweets`,
     {
       max_results: '100',
     }
   );
-  return data.map(({ id, text }) => ({ id, text }));
+  return typeof res === 'undefined'
+    ? undefined
+    : res.data.map(({ id, text }) => ({ id, text }));
 };
 
 export const findListById = async (
   token: string,
   twitterListId: string
-): Promise<{
-  id: string;
-  name: string;
-  member_count: number;
-}> => {
-  const { data } = await _get<TwitterGetListByIdApiResponse>(
+): Promise<
+  | {
+      id: string;
+      name: string;
+      member_count: number;
+    }
+  | undefined
+> => {
+  const res = await _get<TwitterGetListByIdApiResponse>(
     token,
     `/lists/${twitterListId}`,
     {
       'list.fields': 'member_count',
     }
   );
-  return data;
+  return res?.data;
 };
 
 export const findListMembers = async (
@@ -276,16 +289,22 @@ export const findListMembers = async (
           : {}),
       }
     );
-    const { data, meta } = res;
-    if (filterTwitterIds.length > 0) {
-      members = [
-        ...members,
-        ...data.filter((d) => filterTwitterIds.includes(d.id)),
-      ];
+    if (typeof res !== 'undefined') {
+      const { data, meta } = res;
+      if (filterTwitterIds.length > 0) {
+        const { data } = res;
+        members = [
+          ...members,
+          ...data.filter((d) => filterTwitterIds.includes(d.id)),
+        ];
+      } else {
+        members = [...members, ...data];
+      }
+      nextPageToken = meta.next_token;
     } else {
-      members = [...members, ...data];
+      // 結果が取得できなかったときはループを終了する
+      nextPageToken = '';
     }
-    nextPageToken = meta.next_token;
   } while (
     // ページが存在し、かつフィルターを満たしていない間は実行
     nextPageToken !== '' &&
@@ -315,16 +334,15 @@ export const addListMember = async (
   return is_member;
 };
 
-export const findUser = async (token: string, tw_id: string) => {
-  const { data } = await _get<TwitterGetUserApiResponse>(
-    token,
-    `/users/${tw_id}`,
-    {
-      'user.fields':
-        'created_at,description,id,name,profile_image_url,protected,public_metrics,username,verified',
-    }
-  );
-  return data;
+export const findUser = async (
+  token: string,
+  tw_id: string
+): Promise<TwitterProfile | undefined> => {
+  const res = await _get<TwitterGetUserApiResponse>(token, `/users/${tw_id}`, {
+    'user.fields':
+      'created_at,description,id,name,profile_image_url,protected,public_metrics,username,verified',
+  });
+  return res?.data;
 };
 
 export * from './types';

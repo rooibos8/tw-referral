@@ -3,13 +3,14 @@ import { InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
-import { getServerSideProps } from './apply';
-
 import { Button, BackButton } from '@/components';
 import { GetTwitterProfileApiResponse } from '@/constants';
 import * as api from '@/libs/api';
 import { JudgeHistoryDoc, UserDoc, UserInfo } from '@/libs/firebase';
+import { withSessionSsr } from '@/libs/session/client';
 import { TwitterProfile } from '@/libs/twitter';
+
+export const getServerSideProps = withSessionSsr();
 
 export default function New() {
   const router = useRouter();

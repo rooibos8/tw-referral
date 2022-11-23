@@ -10,8 +10,10 @@ import {
   isValidSession,
   sessionOptions,
 } from '@/libs/session';
+import { withSessionSsr } from '@/libs/session/client';
 
-export const getServerSideProps = withIronSessionSsr(async function ({
+// @ts-ignore
+export const getServerSideProps = withSessionSsr(async function ({
   req,
   query,
 }) {
@@ -50,8 +52,7 @@ export const getServerSideProps = withIronSessionSsr(async function ({
       profileImageUrl: profile_image_url,
     },
   };
-},
-sessionOptions);
+});
 
 export default function Apply({
   listId,

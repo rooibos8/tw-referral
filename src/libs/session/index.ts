@@ -1,5 +1,14 @@
+import cookie from 'cookie';
+import { unsealData } from 'iron-session';
+
 import type { TwitterUser } from '@/libs/twitter';
-import type { IronSession, IronSessionOptions } from 'iron-session';
+import type {
+  IronSession,
+  IronSessionData,
+  IronSessionOptions,
+} from 'iron-session';
+
+import { SessionState } from '@/store';
 
 export const sessionOptions: IronSessionOptions = {
   password: process.env.SESSION_PASSWORD as string,
@@ -10,13 +19,31 @@ export const sessionOptions: IronSessionOptions = {
   },
 };
 
+// export const getSession = async (): Promise<SessionState> => {
+//   const cookies = cookie.parse(document.cookie);
+//   // const {
+//   //   loggedIn,
+//   //   user,
+//   //   twitter: {
+//   //     profile: { name, username, profile_image_url },
+//   //   },
+//   // } = (await unsealData(cookies[sessionOptions.cookieName], {
+//   //   password: sessionOptions.password,
+//   // })) as IronSessionData;
+//   return {
+//     loggedIn: true,
+//     user: {
+//       userId: '',
+//     },
+//     twitter: {
+//       profile: { name: '', username: '', profileImageUrl: '' },
+//     },
+//   };
+// };
+
 export const isValidSession = (session: IronSession): boolean => {
-  const { user, twitter, loggedIn } = session;
-  if (
-    typeof user === 'undefined' ||
-    typeof twitter === 'undefined' ||
-    !loggedIn
-  ) {
+  const { user, twitter } = session;
+  if (typeof user === 'undefined' || typeof twitter === 'undefined') {
     console.log(session);
     return false;
   }

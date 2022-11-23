@@ -21,6 +21,14 @@ const _fetch = async <T>(
       if (location) {
         location.href = '/';
       }
+    } else if (res.status === 429) {
+      if (location) {
+        location.href = '/429';
+      }
+    } else if (res.status === 500) {
+      if (location) {
+        location.href = '/500';
+      }
     }
 
     const data = await res.json();
@@ -29,6 +37,7 @@ const _fetch = async <T>(
       throw new Error('something wrong.');
     }
 
+    console.log(data);
     return data;
   } catch (err) {
     console.error(err);

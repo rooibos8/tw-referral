@@ -1,0 +1,14 @@
+{
+  "login": "Twitter 로그인",
+  "yourList": "내 리스트",
+  "back": "돌아가기",
+  "getToOpenForm": "로 접수를 시작하시겠습니까?",
+  "importExistsMember": "リスト内のアカウントはみんな19歳以上です",
+  "openForm": "受付を開始する",
+  "openedForm": "受付を開始しました！",
+  "or": "아니면",
+  "doTweet": "트윗하기",
+  "doCopy": "URL을 복사하기",
+  "copiedUrl": "URL을 복사했습니다",
+  "noList": "리스트를 작성하지 않으셨나봐요."
+}

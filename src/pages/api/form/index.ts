@@ -34,6 +34,9 @@ const createForm = withApiErrorHandler<{ newId: string }>(async (req, res) => {
   const { token } = twitter;
 
   const list = await twitterApi.findListById(token, twListId);
+  if (typeof list === 'undefined') {
+    throw { status: 404, statusText: 'list not found' };
+  }
 
   let members: TwitterListMembers = [];
   if (importExistsAccount) {
@@ -53,6 +56,11 @@ const getForms = withApiErrorHandler<{ data: Array<Form> }>(
     const user = req.session.user;
 
     const lists = await twitterApi.findOwnedList(token.token, token.profile.id);
+    if (typeof lists === 'undefined') {
+      res.status(200).send({ data: [] });
+      return;
+    }
+
     const forms = await firestoreApi.findFormsByUserId(user.userId);
     const output: Array<Form> = [];
     await Promise.all(

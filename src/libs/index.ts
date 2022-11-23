@@ -40,6 +40,8 @@ export const withApiErrorHandler = <T>(
       if (_e.status === 401) {
         req.session.destroy();
         res.redirect(401, '/');
+      } else if (_e.status === 429) {
+        res.redirect(429, '/429');
       }
       if (_e.status && _e.statusText) {
         res.status(500).send({ errorMessage: _e.statusText });

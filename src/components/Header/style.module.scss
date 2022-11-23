@@ -1,0 +1,25 @@
+@import '@/styles/variables.module.scss';
+
+.header {
+  display: grid;
+  grid-template-columns: 38px 1fr 38px;
+  justify-content: space-between;
+  height: 60px;
+  align-items: center;
+  padding: 0 20px;
+  img {
+    border-radius: 50%;
+  }
+  p {
+    font-size: 1.3em;
+  }
+}
+
+.title {
+  text-align: center;
+}
+
+.flag {
+  border-radius: 5px;
+  width: fit-content;
+}

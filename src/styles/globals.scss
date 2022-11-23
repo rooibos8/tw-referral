@@ -1,4 +1,4 @@
-@import '@/styles/variables.scss';
+@import '@/styles/variables.module.scss';
 
 html,
 body {
@@ -8,6 +8,23 @@ body {
   background-color: $base-theme-color;
   color: $default-color;
   font-size: 12px;
+  line-height: 1;
+}
+
+h1 {
+  font-size: 2.3em;
+  font-weight: 600;
+  padding: 0;
+  line-height: 1.1;
+  margin: 0;
+}
+
+h3 {
+  font-size: 1.6em;
+  font-weight: 300;
+  padding: 0;
+  line-height: 1.1;
+  margin: 0;
 }
 
 a {

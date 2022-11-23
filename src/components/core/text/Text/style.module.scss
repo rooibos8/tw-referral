@@ -1,0 +1,12 @@
+@import '@/styles/variables.module.scss';
+
+.root {
+  color: $default-color;
+  font-size: 1.16em;
+  font-weight: 400;
+  word-break: break-all;
+}
+
+.lg {
+  font-size: 1.5em;
+}

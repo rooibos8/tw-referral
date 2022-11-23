@@ -1,0 +1,70 @@
+@import '@/styles/variables.module.scss';
+
+.container {
+  margin-top: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-message {
+  gap: 8px;
+  text-align: center;
+  margin-bottom: 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sub-message {
+  margin-bottom: 18px;
+}
+
+.checkbox-label {
+  color: $default-color;
+}
+
+.share {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.share-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+  width: 80%;
+}
+
+.copy-url-root {
+  width: 100%;
+}
+
+.copy-url-input {
+  background-color: $default-color;
+  border-radius: 5px;
+}
+
+.copy-button {
+  background-color: $default-color;
+  color: $black-color;
+  border: none;
+  &:active {
+    background-color: $black-light-color;
+    color: $black-color;
+  }
+}
+
+.copy-button-copied {
+  background-color: $primary-color;
+  color: $default-color;
+  border: none;
+  &:active {
+    background-color: $primary-color;
+    color: $default-color;
+  }
+}

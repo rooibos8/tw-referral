@@ -1,0 +1,13 @@
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.list-item-enter {
+  opacity: 0;
+}
+.list-item-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}

@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import styles from '@/styles/components/button.module.scss';
+import styles from './style.module.scss';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   theme?: 'default' | 'primary' | 'warn' | 'error';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
 }
 
@@ -14,7 +14,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
  */
 const Button: React.FC<ButtonProps> = ({
   theme = 'default',
-  size = 'medium',
+  size = 'md',
   className,
   children,
   ...props

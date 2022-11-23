@@ -1,0 +1,14 @@
+{
+  "login": "Login with Twitter",
+  "yourList": "My Lists",
+  "back": "Back",
+  "getToOpenForm": "Would you like to open a new form of the above list ?",
+  "importExistsMember": "リスト内のアカウントはみんな19歳以上です",
+  "openForm": "受付を開始する",
+  "openedForm": "受付を開始しました！",
+  "or": "or",
+  "doTweet": "Tweet",
+  "doCopyUrl": "Copy url",
+  "copiedUrl": "Copied url",
+  "noList": "It seems like you don't have any list."
+}
