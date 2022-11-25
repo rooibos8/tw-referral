@@ -205,7 +205,7 @@ export default function New() {
             </div>
             <div className={styles['judge-history-grid']}>
               <Text className={styles['judge-history-grid-header']}>
-                AIの判定
+                {t('aiGuessed')}
               </Text>
               <Text stress>
                 {!applier.data.ai_guessed_age_gt &&

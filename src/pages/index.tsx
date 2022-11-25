@@ -1,7 +1,7 @@
 import { useTranslation } from 'next-i18next';
 import React from 'react';
 
-import { TwitterIcon, Button } from '@/components';
+import { TwitterIcon, Button, Text } from '@/components';
 
 import * as api from '@/libs/api';
 import { withSessionSsr } from '@/libs/session/client';
@@ -20,19 +20,12 @@ export default function Top() {
 
   return (
     <article>
-      <section>
-        <h1>
-          Twitterユーザーの年齢判定を
-          <br />
-          共有するツール
-        </h1>
-        <p>
-          成人向けコンテンツをTwitterでリスト公開したい時アカウントの年齢確認をするのが大変なのでツールを作りました！
-        </p>
-        <p>
-          １人で確認するのが大変ならみんなで結果をシェアすればいいじゃない！ ――
-          制作
-        </p>
+      <section className={styles.section}>
+        <h1>{t('serviceTitle')}</h1>
+        <div className={styles.message}>
+          <Text>{t('serviceDescription')}</Text>
+          <Text size="sm">{t('serviceDescription2')}</Text>
+        </div>
         <Button
           icon={<TwitterIcon className={''} />}
           className={styles['login-btn']}
