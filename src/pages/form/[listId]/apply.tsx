@@ -1,6 +1,3 @@
-import { match } from 'assert';
-
-import { InferGetServerSidePropsType } from 'next';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect } from 'react';
 
@@ -19,14 +16,22 @@ export const getServerSideProps = withSessionSsr(async function ({
   query,
 }) {
   const { listId } = query as { listId?: string };
+  let defaultProps = {
+    needAuth: false,
+    listId: listId as string,
+    name: '',
+    userName: '',
+    profileImageUrl: '',
+    isAvailable: true,
+    notFound: false,
+  };
   if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
     req.session.destroy();
     return {
       props: {
-        listId: listId as string,
+        ...defaultProps,
         needAuth: true,
         isAvailable: false,
-        notFound: false,
       },
     };
   }
@@ -49,22 +54,22 @@ export const getServerSideProps = withSessionSsr(async function ({
   if (applyRes.status === 406) {
     return {
       props: {
-        notFound: false,
-        needAuth: false,
+        ...defaultProps,
         isAvailable: false,
       },
     };
   } else if (applyRes.status === 404) {
     return {
       props: {
+        ...defaultProps,
         notFound: true,
       },
     };
   } else if (applyRes.status === 202) {
     return {
       props: {
+        ...defaultProps,
         needAuth: true,
-        listId: listId as string,
       },
     };
   }
@@ -80,11 +85,11 @@ export const getServerSideProps = withSessionSsr(async function ({
   const { name, username, profile_image_url }: PostApplyApiResponse =
     await applyRes.json();
 
-  const match = profile_image_url.match(/[^\/]+$/);
+  const match = profile_image_url.match(new RegExp('/[^\\/]+$/'));
 
   return {
     props: {
-      needAuth: false,
+      ...defaultProps,
       listId: listId as string,
       name,
       userName: username,
@@ -95,11 +100,19 @@ export const getServerSideProps = withSessionSsr(async function ({
               match[0].replace('normal', '400x400')
             )
           : profile_image_url,
-      isAvailable: true,
-      notFound: false,
     },
   };
 });
+
+type ApplyPageProps = {
+  needAuth: boolean;
+  listId: string;
+  name: string;
+  userName: string;
+  profileImageUrl: string;
+  isAvailable: boolean;
+  notFound: boolean;
+};
 
 export default function Apply({
   listId,
@@ -109,7 +122,7 @@ export default function Apply({
   needAuth,
   isAvailable,
   notFound,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: ApplyPageProps) {
   const { t } = useTranslation();
   useEffect(() => {
     if (needAuth) {

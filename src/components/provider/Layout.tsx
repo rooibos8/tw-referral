@@ -39,7 +39,9 @@ export default function Layout({ session, children }: LayoutProps) {
           <div className={styles['sub-header']}>
             <BackButton
               href={
-                router.pathname === '/form/[listId]/apply' ? '/mypage' : null
+                router.pathname === '/form/[listId]/apply'
+                  ? '/mypage'
+                  : undefined
               }
             />
             {router.pathname === '/form/[listId]' ? (

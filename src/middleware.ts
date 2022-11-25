@@ -29,8 +29,10 @@ const isAllowWithoutSession = (path: string): boolean => {
 };
 
 const middleware = async (req: NextRequest) => {
-  console.log('~~~~~~~~~~~ start middleware ~~~~~~~~~~~');
-  console.log(req.url);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('~~~~~~~~~~~ start middleware ~~~~~~~~~~~');
+    console.log(req.url);
+  }
   const res = NextResponse.next();
   const session = await getIronSession(req, res, sessionOptions);
   const pathname = getPathname(req.url);
@@ -38,12 +40,16 @@ const middleware = async (req: NextRequest) => {
     !isAllowWithoutSession(pathname) &&
     (!isValidSession(session) || hasSessionExpired(session))
   ) {
-    console.log(session);
-    console.log('redirect login from: ', pathname);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(session);
+      console.log('redirect login from: ', pathname);
+    }
     await session.destroy();
     return NextResponse.redirect(new URL('/', req.url));
   }
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  }
 };
 
 export const config = {

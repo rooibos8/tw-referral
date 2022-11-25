@@ -2,11 +2,7 @@ import cookie from 'cookie';
 import { unsealData } from 'iron-session';
 
 import type { TwitterUser } from '@/libs/twitter';
-import type {
-  IronSession,
-  IronSessionData,
-  IronSessionOptions,
-} from 'iron-session';
+import type { IronSession, IronSessionOptions } from 'iron-session';
 
 export const sessionOptions: IronSessionOptions = {
   password: process.env.SESSION_PASSWORD as string,
