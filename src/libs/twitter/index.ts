@@ -13,6 +13,7 @@ import type {
   TwitterPutListMemberApiResponse,
   TwitterGetOwnedApiResponse,
   TwitterProfile,
+  Tweet,
 } from './types';
 import type { FetchParams } from '@/libs';
 import type { NextApiRequest } from 'next';
@@ -45,9 +46,6 @@ const _get = async <R>(
       },
     });
     const data: R = await res.json();
-    console.log(res.status);
-    console.log(res.statusText);
-    console.log(data);
     if (!res.ok) {
       console.log(`'Failed getting twitter data : ${fullUrl}`);
       throw { status: res.status, statusText: res.statusText, data };
@@ -236,7 +234,7 @@ export const findOwnedList = async (
 export const findTweets = async (
   token: string,
   tw_user_id: string
-): Promise<Array<{ id: string; text: string }> | undefined> => {
+): Promise<Array<Tweet> | undefined> => {
   const res = await _get<TwitterGetTweetsApiResponse>(
     token,
     `/users/${tw_user_id}/tweets`,
@@ -340,7 +338,7 @@ export const findUser = async (
 ): Promise<TwitterProfile | undefined> => {
   const res = await _get<TwitterGetUserApiResponse>(token, `/users/${tw_id}`, {
     'user.fields':
-      'created_at,description,id,name,profile_image_url,protected,public_metrics,username,verified',
+      'created_at,description,id,name,profile_image_url,protected,public_metrics,username,verified,url',
   });
   return res?.data;
 };

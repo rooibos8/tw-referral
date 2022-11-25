@@ -13,9 +13,6 @@ const nextConfig = {
 
     return config;
   },
-  experimental: {
-    allowMiddlewareResponseBody: true,
-  },
   images: {
     remotePatterns: [
       {

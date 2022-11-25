@@ -9,7 +9,7 @@ export const LoadingOverLay = () => {
   return (
     <div className={styles.container}>
       <Loading
-        color={variables.warnColor}
+        color={variables.defaultColor}
         classNames={{
           container: styles['wave-container'],
           wave: styles.wave,

@@ -15,5 +15,20 @@
   "applied": "参加を申請しました！",
   "notAvailableList": "このリストは受付を停止しています",
   "notFoundTitle": "404 Not Found",
-  "listNotFoundMessage": "存在しない、または公開されていないリトです"
+  "listNotFoundMessage": "存在しない、または公開されていないリトです",
+  "allow": "許可",
+  "deny": "却下",
+  "congratulations": "おめでとうございます！",
+  "haveDoneAllRequests": "全てのアカウントのリスト追加が完了しましたね！",
+  "donateMessage": "このサービスを気に入ってくれた方はこちらからサーバー運用費をカンパしてもらえると、とっても助かります。",
+  "otherUsersJudgement": "過去の判定",
+  "whoAllowThisUser": "以下のユーザーは許可しました",
+  "whoDenyThisUser": "以下のユーザーは却下しました",
+  "joined": "開設: ",
+  "followingCount": "フォロー中",
+  "followerCount": "フォロワー",
+  "tweetCount": "件のツイート",
+  "aiSayNothing": "判定なし",
+  "yearsOld": "歳",
+  "aiGuessed": "AIの判定"
 }

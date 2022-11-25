@@ -5,8 +5,6 @@ import Skeleton from 'react-loading-skeleton';
 
 import styles from './style.module.scss';
 
-import variables from '@/styles/variables.module.scss';
-
 type ListItemProps = {
   onClick?: () => void;
   className?: string;
@@ -19,19 +17,17 @@ export const ListItem: React.FC<React.PropsWithChildren<ListItemProps>> = ({
   className,
   isLoading = false,
 }) => {
-  return (
+  return isLoading ? (
+    <div className={clsx(styles.skelton, className)}>
+      <Skeleton
+        baseColor={'#ffffff'}
+        highlightColor={'#ededed'}
+        height="100%"
+      />
+    </div>
+  ) : (
     <div className={clsx(styles.root, className)} onClick={onClick}>
-      {isLoading ? (
-        <div className={styles.skelton}>
-          <Skeleton
-            baseColor={variables.skeltonBaseColor}
-            width="85%"
-            height="100%"
-          />
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </div>
   );
 };

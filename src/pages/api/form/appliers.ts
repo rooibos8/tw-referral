@@ -5,7 +5,11 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { APPLY_STATUS, GetAppliersApiResponse } from '@/constants';
 
 import { firestoreApi, twitterApi, withApiErrorHandler } from '@/libs';
-import { sessionOptions } from '@/libs/session';
+import {
+  hasSessionExpired,
+  isValidSession,
+  sessionOptions,
+} from '@/libs/session';
 
 const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
   async (req, res) => {
@@ -17,16 +21,24 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
     const user = req.session.user;
     const twitter = await twitterApi.getAccessToken(req);
 
+    if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
+      throw { status: 401, statusText: 'BAD REQUEST' };
+    }
     if (typeof formId === 'undefined' || typeof user === 'undefined') {
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
 
-    let appliers = await firestoreApi.findAppliersByFormId(user.userId, formId);
     const form = await firestoreApi.findListFormById(user.userId, formId);
     if (typeof form === 'undefined') {
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
 
+    const resData: GetAppliersApiResponse = { data: [] };
+
+    const appliers = await firestoreApi.findAppliersByFormId(
+      user.userId,
+      formId
+    );
     const stayApplier = appliers.filter(
       (a) => a.data.status === APPLY_STATUS.STAY
     );
@@ -38,50 +50,59 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
         stayApplier.map((a) => a.data.user.twitter.id)
       );
 
-      await Promise.all([
-        // リストにすでに存在する人はALLOWに更新
-        existsListMembers.map(async (existsListMember) => {
-          const applier = appliers.find(
-            (a) => a.data.user.twitter.id === existsListMember.id
+      await Promise.all(
+        stayApplier.map(async (applier) => {
+          const existsApplier = existsListMembers.find(
+            (l) => l.id === applier.data.user.twitter.id
           );
-          if (typeof applier === 'undefined') return;
+          const alreadyAllowed = typeof existsApplier !== 'undefined';
+          const data = {
+            user: {
+              ...applier.data.user,
+              allowed: 0,
+              denied: 0,
+            },
+            status: applier.data.status,
+          };
           await Promise.all([
-            await firestoreApi.updateApplyStatus(
-              { id: user.userId, twitter: twitter.profile },
-              formId,
-              applier.user_doc_id,
-              APPLY_STATUS.ALLOW
-            ),
-          ]);
-          applier.data.status = APPLY_STATUS.ALLOW;
-        }),
-        // Twitterリストに存在しない＆ヒストリーが存在する場合は、ヒストリーを削除
-        stayApplier
-          .filter(
-            (a) =>
-              !existsListMembers.some((l) => l.id !== a.data.user.twitter.id)
-          )
-          .map(async (applier) => {
-            const history =
-              await firestoreApi.findUserAllowedHistoryByJudgedUserId(
-                applier.user_doc_id,
-                user.userId
+            // allowed回数の取得
+            async () => {
+              const allowed = await firestoreApi.findUserAllowedHistoryByUserId(
+                applier.user_doc_id
               );
-            if (typeof history === 'undefined') return;
-            await firestoreApi.deleteUserAllowedHistoryByUserId(
-              applier.user_doc_id,
-              user.userId
-            );
-          }),
-      ]);
+              data.user.allowed = allowed.length;
+            },
+            // denied回数の取得
+            async () => {
+              const denied = await firestoreApi.findUserDeniedHistoryByUserId(
+                applier.user_doc_id
+              );
+              data.user.denied = denied.length;
+            },
+            alreadyAllowed
+              ? async () => {
+                  // リストにすでに存在する人はALLOWに更新
+                  await firestoreApi.updateApplyStatus(
+                    { id: user.userId, twitter: twitter.profile },
+                    formId,
+                    applier.user_doc_id,
+                    APPLY_STATUS.ALLOW
+                  );
+                }
+              : async () => {
+                  // Twitterリストに存在しない＆ヒストリーが存在する場合は、ヒストリーを削除
+                  await firestoreApi.deleteUserAllowedHistoryByUserId(
+                    applier.user_doc_id,
+                    user.userId
+                  );
+                },
+          ]);
+          resData.data.push(data);
+        })
+      );
     }
 
-    res.status(200).send({
-      data: appliers.map((a) => ({
-        user: a.data.user,
-        status: a.data.status,
-      })),
-    });
+    res.status(200).send(resData);
   }
 );
 

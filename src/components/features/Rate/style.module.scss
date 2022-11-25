@@ -1,0 +1,68 @@
+@import '@/styles/variables.module.scss';
+
+.progress {
+  font-size: 8px;
+  display: grid;
+  gap: 2px;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.progress-bar-allowed-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  gap: 2px;
+}
+
+.progress-bar-denied-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.progress-bar {
+  height: 6px;
+}
+
+.history-allowed {
+  width: 100%;
+  position: relative;
+  background-color: $primary-color-light;
+  border-radius: 0px 50px 50px 0px;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      270deg,
+      $primary-color 0%,
+      rgba(87, 167, 115, 0) 100%
+    );
+    border-radius: 0px 50px 50px 0px;
+  }
+}
+
+.history-denied {
+  width: 100%;
+  position: relative;
+  background-color: $warn-color-light;
+  border-radius: 50px 0px 0px 50px;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      $warn-color 0%,
+      rgba(255, 107, 107, 0) 97.18%
+    );
+    border-radius: 50px 0px 0px 50px;
+  }
+}

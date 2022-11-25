@@ -51,17 +51,12 @@ export const withSessionSsr = <
             }
           : null,
       };
-      // const props = {
-      //   page: {
-      //     serverSideData:
-      //       'global data you want to pass to the global page component',
-      //   },
-      // } as T;
+      if (!session.loggedIn) {
+        ctx.req.session.destroy();
+      }
 
-      console.log('locale: ' + ctx.locale);
       const i18n = await serverSideTranslations(ctx.locale ?? 'jp', ['common']);
       if (handler) {
-        console.log(ctx.query);
         const p = await handler(ctx);
         if ('props' in p) {
           return {

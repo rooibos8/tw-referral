@@ -1,8 +1,10 @@
+import { match } from 'assert';
+
 import { InferGetServerSidePropsType } from 'next';
 import { useTranslation } from 'next-i18next';
 import React, { useEffect } from 'react';
 
-import { BackButton, Loading, Title, UserIcon } from '@/components';
+import { Loading, Title, UserIcon } from '@/components';
 import { PostApplyApiResponse } from '@/constants';
 import * as api from '@/libs/api';
 import { hasSessionExpired, isValidSession } from '@/libs/session';
@@ -28,6 +30,7 @@ export const getServerSideProps = withSessionSsr(async function ({
       },
     };
   }
+
   const applyRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/form/apply`,
     {
@@ -57,6 +60,13 @@ export const getServerSideProps = withSessionSsr(async function ({
         notFound: true,
       },
     };
+  } else if (applyRes.status === 202) {
+    return {
+      props: {
+        needAuth: true,
+        listId: listId as string,
+      },
+    };
   }
   if (!applyRes.ok || typeof applyRes === 'undefined') {
     return {
@@ -70,13 +80,21 @@ export const getServerSideProps = withSessionSsr(async function ({
   const { name, username, profile_image_url }: PostApplyApiResponse =
     await applyRes.json();
 
+  const match = profile_image_url.match(/[^\/]+$/);
+
   return {
     props: {
       needAuth: false,
       listId: listId as string,
       name,
       userName: username,
-      profileImageUrl: profile_image_url,
+      profileImageUrl:
+        match !== null
+          ? profile_image_url.replace(
+              match[0],
+              match[0].replace('normal', '400x400')
+            )
+          : profile_image_url,
       isAvailable: true,
       notFound: false,
     },
@@ -107,7 +125,6 @@ export default function Apply({
 
   return (
     <div>
-      <BackButton href="/mypage" />
       <div className={styles.container}>
         {notFound ? (
           <div className={styles['main-message']}>
@@ -123,8 +140,8 @@ export default function Apply({
           <>
             <div className={styles['main-message']}>
               <UserIcon src={profileImageUrl ?? ''} size={120} />
-              <div>
-                <Title className={styles['user-name']}>{name}</Title>
+              <div className={styles['user-name']}>
+                <Title>{name}</Title>
                 <span>{userName}</span>
               </div>
             </div>

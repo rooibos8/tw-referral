@@ -1,8 +1,10 @@
+import { Badge } from '@mantine/core';
 import clsx from 'clsx';
 import { InferGetServerSidePropsType } from 'next';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ListItem, List, Title } from '@/components/core';
@@ -10,86 +12,77 @@ import { ArrowForwardIcon } from '@/components/icons';
 import { Form } from '@/constants';
 import * as api from '@/libs/api';
 
+import { UserInfo } from '@/libs/firebase';
 import { withSessionSsr } from '@/libs/session/client';
+import { uiState } from '@/store';
+import { formState } from '@/store/form';
 import styles from '@/styles/pages/mypage.module.scss';
 
 export const getServerSideProps = withSessionSsr();
 
-export default function Mypage(
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
-) {
+export default function Mypage() {
   const { t } = useTranslation();
   const [lists, setLists] = useState<Array<{ skeltonId: string; form?: Form }>>(
     []
   );
   const [activeLists, setActiveLists] = useState<Array<string>>([]);
   const [noList, setNoList] = useState<boolean>(false);
+  const [form, setForm] = useRecoilState(formState);
+  const [ui, setUi] = useRecoilState(uiState);
 
   useEffect(() => {
-    // start loading
-    let skeltonCounter = 0;
-    const interval = setInterval(() => {
-      ++skeltonCounter;
-      const skeltonId = uuidv4();
-      setLists((prev) => [...prev, { skeltonId }]);
-      setTimeout(() => {
-        setActiveLists((prev) => [...prev, skeltonId]);
-      }, 200);
-      if (skeltonCounter > 10) {
-        clearInterval(interval);
-      }
-    }, 450);
+    if (form.data.length > 0) {
+      setLists(
+        form.data
+          .map((d) => ({ form: d, skeltonId: d.id ?? d.twitter.id }))
+          .slice()
+      );
+      setActiveLists(form.data.map((d) => d.id ?? d.twitter.id).slice());
+      return;
+    }
+
+    setUi({ isLoading: true });
+    const skeltonId = uuidv4();
 
     (async () => {
+      let data: Array<Form> = [];
       const res = await api.getForms();
-      if (res) {
-        if (res.data.length === 0) {
-          setNoList(true);
-        }
-        let listCount = 0;
-        clearInterval(interval);
+      if (!res) return;
+      data = res.data;
+      setForm({
+        data: data as Array<
+          Form & {
+            appliers?: Array<UserInfo & { allowed: number; denied: number }>;
+          }
+        >,
+      });
+      setUi({ isLoading: false });
 
-        for (const d of res.data) {
-          const newSkeltonId = uuidv4();
-          // @ts-ignore
-          setLists((prev) => {
-            prev.splice(listCount, 1, {
-              skeltonId: prev[listCount]
-                ? prev[listCount].skeltonId
-                : newSkeltonId,
-              form: d,
-            });
-            return prev;
+      if (data.length === 0) {
+        setNoList(true);
+        return;
+      }
+      for (let i = 0; i < data.length; i++) {
+        const d = data[i];
+        setLists((prev) => {
+          prev.splice(i, 1, {
+            skeltonId: d.id ?? d.twitter.id,
+            form: d,
           });
-
-          setTimeout(() => {
-            setActiveLists((prev) => {
-              if (prev.length <= listCount + 1) {
-                return prev;
-              } else {
-                return [...prev, newSkeltonId];
-              }
-            });
-          }, 200);
-          setLists((prev) => {
-            if (prev.length < res.data.length) {
-              const skeltonId = uuidv4();
-              setTimeout(() => {
-                setActiveLists((prev) => [...prev, skeltonId]);
-              }, 200);
-              return [...prev, { skeltonId }];
-            } else {
+          return prev.slice();
+        });
+        setTimeout(() => {
+          setActiveLists((prev) => {
+            if (prev.length >= data.length) {
               return prev;
+            } else {
+              return [...prev, d.id ?? d.twitter.id];
             }
           });
-          await new Promise((r) => setTimeout(r, 450));
-          listCount++;
-        }
+        }, 200);
+        await new Promise((r) => setTimeout(r, 300));
       }
     })();
-    return () => {
-      clearInterval(interval);
-    };
   }, []);
 
   return (
@@ -98,38 +91,37 @@ export default function Mypage(
       <List>
         {noList ? <>{t('noList')}</> : null}
         {lists.map((list) => (
-          <>
+          <ListItem
+            key={list.skeltonId}
+            className={clsx(styles['list-item-enter'], {
+              [styles['list-item-enter-active']]: activeLists.find(
+                (id) => id === list.skeltonId
+              ),
+            })}
+          >
             {typeof list.form !== 'undefined' ? (
               <Link
-                key={list.skeltonId}
+                className={styles['list-item']}
                 href={`${
                   list.form.id
                     ? `/form/${list.form.id}`
                     : `/form/new?id=${list.form.twitter.id}&name=${list.form.twitter.name}`
                 }`}
-                className={clsx(styles['list-item-enter'], {
-                  [styles['list-item-enter-active']]: activeLists.find(
-                    (id) => id === list.skeltonId
-                  ),
-                })}
               >
-                <ListItem>
-                  {list.form.name}
-                  <ArrowForwardIcon />
-                </ListItem>
+                {list.form.name}
+                <div>
+                  {list.form.appliers.length > 0 ? (
+                    <Badge>
+                      {list.form.appliers.length > 99
+                        ? '99+'
+                        : list.form.appliers.length}
+                    </Badge>
+                  ) : null}
+                </div>
+                <ArrowForwardIcon />
               </Link>
-            ) : (
-              <ListItem
-                key={list.skeltonId}
-                isLoading
-                className={clsx(styles['list-item-enter'], {
-                  [styles['list-item-enter-active']]: activeLists.find(
-                    (s) => s === list.skeltonId
-                  ),
-                })}
-              />
-            )}
-          </>
+            ) : null}
+          </ListItem>
         ))}
       </List>
     </div>

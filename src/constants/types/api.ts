@@ -8,7 +8,7 @@ import type {
   UserInfo,
 } from '@/libs/firebase';
 
-import { TwitterProfile } from '@/libs/twitter';
+import { Tweet, TwitterProfile } from '@/libs/twitter';
 
 export type Form = {
   id?: string;
@@ -30,13 +30,14 @@ export type GetFormApiResponse = {
 
 export type GetAppliersApiResponse = {
   data: Array<{
-    user: { doc_id: string } & UserInfo;
+    user: { doc_id: string; allowed: number; denied: number } & UserInfo;
     status: ApplyStatus;
   }>;
 };
 
 export type GetTwitterProfileApiResponse = UserDoc & {
-  twitter: TwitterProfile;
+  tweets?: Array<Tweet>;
+  twitter?: TwitterProfile;
 };
 
 export type GetJudgeHistoryApiResponse = {
@@ -55,7 +56,6 @@ export type GetTwitterListApiResponse = {
 export type UpdateApplyApiResponse = {
   ok: boolean;
   text?: string;
-  data?: ListFormDoc;
 };
 
 export type PostApplyApiResponse = TwitterUserInfo;

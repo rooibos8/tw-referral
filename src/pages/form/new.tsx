@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useRecoilState } from 'recoil';
 
-import { Button, BackButton, UrlCopy } from '@/components';
+import { Button, UrlCopy } from '@/components';
 import * as api from '@/libs/api';
 import { withSessionSsr } from '@/libs/session/client';
 import { uiState } from '@/store';
@@ -89,36 +89,31 @@ export default function New() {
     }
   };
 
-  return (
-    <>
-      <BackButton href="/mypage" />
-      {opened === false ? (
-        <div className={styles.container}>
-          <div className={styles['main-message']}>
-            <h1>{list.name}</h1>
-            <h3>{t('getToOpenForm')}</h3>
-          </div>
-          <label className={styles['sub-message']}>
-            <Checkbox
-              classNames={{
-                label: styles['checkbox-label'],
-              }}
-              label={t('importExistsMember')}
-              onChange={() => setImportExistsAccount((prev) => !prev)}
-            />
-          </label>
-          <Button size="lg" onClick={handleClickOpen}>
-            {t('openForm')}
-          </Button>
-        </div>
-      ) : (
-        <div className={styles.container}>
-          <div className={styles['main-message']}>
-            <h3>{t('openedForm')}</h3>
-          </div>
-          <UrlCopy url={formUrl} />
-        </div>
-      )}
-    </>
+  return opened === false ? (
+    <div className={styles.container}>
+      <div className={styles['main-message']}>
+        <h1>{list.name}</h1>
+        <h3>{t('getToOpenForm')}</h3>
+      </div>
+      <label className={styles['sub-message']}>
+        <Checkbox
+          classNames={{
+            label: styles['checkbox-label'],
+          }}
+          label={t('importExistsMember')}
+          onChange={() => setImportExistsAccount((prev) => !prev)}
+        />
+      </label>
+      <Button size="lg" onClick={handleClickOpen}>
+        {t('openForm')}
+      </Button>
+    </div>
+  ) : (
+    <div className={styles.container}>
+      <div className={styles['main-message']}>
+        <h3>{t('openedForm')}</h3>
+      </div>
+      <UrlCopy url={formUrl} />
+    </div>
   );
 }

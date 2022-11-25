@@ -8,9 +8,7 @@
   color: $default-color;
 }
 
-.sub-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
+.list-container {
+  width: 100vw;
+  transform: translate(-16px, 0);
 }

@@ -45,3 +45,13 @@ a {
     background: black;
   }
 }
+
+.swipeable-list-item__leading-actions {
+  position: absolute;
+  display: flex;
+  width: 0px;
+  overflow: hidden;
+  height: 100%;
+  left: 0;
+  top: 0;
+}

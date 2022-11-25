@@ -14,7 +14,6 @@ export default appWithTranslation(function App({
   Component,
   pageProps,
 }: AppProps) {
-  console.log('MyApp!!!', pageProps);
   return (
     <ErrorBoundary>
       <RecoilRoot>

@@ -1,3 +1,5 @@
+import { profile } from 'console';
+
 import { withIronSessionApiRoute } from 'iron-session/next';
 
 import type { GetTwitterProfileApiResponse } from '@/constants';
@@ -5,7 +7,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { firestoreApi, twitterApi, withApiErrorHandler } from '@/libs';
 
+import { UserDoc } from '@/libs/firebase';
 import { sessionOptions } from '@/libs/session';
+import { Tweet, TwitterProfile } from '@/libs/twitter';
 
 const getTwitterProfile = withApiErrorHandler<GetTwitterProfileApiResponse>(
   async (req, res) => {
@@ -27,12 +31,27 @@ const getTwitterProfile = withApiErrorHandler<GetTwitterProfileApiResponse>(
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
 
-    const profile = await twitterApi.findUser(
-      twitter.token,
-      applier.twitter_id
-    );
-
-    res.status(200).send({ ...applier, twitter: profile });
+    let resData: UserDoc & {
+      tweets?: Array<Tweet>;
+      twitter?: TwitterProfile;
+    } = applier;
+    await Promise.all([
+      (async () => {
+        const profile = await twitterApi.findUser(
+          twitter.token,
+          applier.twitter_id
+        );
+        resData.twitter = profile;
+      })(),
+      (async () => {
+        const tweets = await twitterApi.findTweets(
+          twitter.token,
+          applier.twitter_id
+        );
+        resData.tweets = tweets;
+      })(),
+    ]);
+    res.status(200).send(resData);
   }
 );
 

@@ -30,7 +30,7 @@ export const UrlCopy = ({ url }: UrlCopyProp) => {
             input: styles['copy-url-input'],
           }}
           variant="unstyled"
-          value={url}
+          defaultValue={url}
         />
         <CopyButton value={url}>
           {({ copied, copy }) => (

@@ -46,11 +46,12 @@ export type TwitterGetAccessTokenApiResponse = {
 };
 
 export type TwitterGetTweetsApiResponse = {
-  data: Array<{
-    id: string;
-    edit_history_tweet_ids: Array<string>;
-    text: string;
-  }>;
+  data: Array<Tweet>;
+};
+
+export type Tweet = {
+  id: string;
+  text: string;
 };
 
 export type TwitterProfile = {

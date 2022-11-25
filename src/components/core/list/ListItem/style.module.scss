@@ -8,13 +8,41 @@
   padding: 8px 16px;
   height: 50px;
   box-sizing: content-box;
-  display: flex;
-  align-items: center;
   border-radius: 5px;
-  justify-content: space-between;
+  // &:active {
+  //   transform: scale(1.02);
+  //   transition: 0.1s;
+  // }
+  // .ripple {
+  // background-position: center;
+  // transition: background 0.8s;
+  // }
+  // :hover {
+  //   background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%) center/15000%;
+  // }
+  // &:active {
+  //   background-color: $black-color-light;
+  //   background-size: 100%;
+  //   transition: background 0s;
+  // }
+
+  // .ripple {
+  background-position: center;
+  transition: background 0.8s;
+  // }
+  &:hover {
+    background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%)
+      center/15000%;
+  }
+  &:active {
+    background-color: #6eb9f7;
+    background-size: 100%;
+    transition: background 0s;
+  }
 }
 
 .skelton {
   flex: 1;
-  padding-left: 4px;
+  align-self: center;
+  height: 66px;
 }

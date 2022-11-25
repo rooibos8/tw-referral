@@ -36,8 +36,6 @@ const _fetch = async <T>(
       console.error(data);
       throw new Error('something wrong.');
     }
-
-    console.log(data);
     return data;
   } catch (err) {
     console.error(err);
@@ -84,8 +82,8 @@ export const allowApply = async ({
 }: {
   listId: string;
   applierId: string;
-}) => {
-  return await _fetch('/api/form/apply', {
+}): Promise<{ ok: boolean } | void> => {
+  return await _fetch<{ ok: boolean }>('/api/form/apply', {
     method: 'PUT',
     body: JSON.stringify({
       listId,
@@ -101,13 +99,30 @@ export const denyApply = async ({
 }: {
   listId: string;
   applierId: string;
-}) => {
-  return await _fetch('/api/form/apply', {
+}): Promise<{ ok: boolean } | void> => {
+  return await _fetch<{ ok: boolean }>('/api/form/apply', {
     method: 'PUT',
     body: JSON.stringify({
       listId,
       applierId,
       status: APPLY_STATUS.DENY,
+    }),
+  });
+};
+
+export const backApply = async ({
+  listId,
+  applierId,
+}: {
+  listId: string;
+  applierId: string;
+}): Promise<{ ok: boolean } | void> => {
+  return await _fetch<{ ok: boolean }>('/api/form/apply', {
+    method: 'PUT',
+    body: JSON.stringify({
+      listId,
+      applierId,
+      status: APPLY_STATUS.STAY,
     }),
   });
 };

@@ -15,9 +15,6 @@ const Header = () => {
   const { locale } = router;
   const session = useRecoilValue(sessionState);
 
-  console.log('Header!!!!');
-  console.log(session);
-  console.log(router.pathname);
   const handleClickSignOut = async () => {
     await fetch('/api/auth/me', {
       method: 'DELETE',

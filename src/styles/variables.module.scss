@@ -3,11 +3,11 @@ $base-theme-color-light: #a0bfd1;
 $twitter-color: #00acee;
 $default-color: #ffffff;
 $primary-color: #57a773;
-$primary-light-color: #cde5d5;
+$primary-color-light: #cde5d5;
 $warn-color: #ff6b6b;
-$warn-light-color: #ffd3d3;
+$warn-color-light: #ffd3d3;
 $black-color: #050505;
-$black-light-color: #cdcdcd;
+$black-color-light: #cdcdcd;
 
 $skelton-base-color: #d9e6ed;
 
@@ -19,10 +19,10 @@ $gray: #6f6866;
   twitterColor: $twitter-color;
   defaultColor: $default-color;
   primaryColor: $primary-color;
-  primaryColorLight: $primary-light-color;
+  primaryColorLight: $primary-color-light;
   warnColor: $warn-color;
-  warnColorLight: $warn-light-color;
+  warnColorLight: $warn-color-light;
   blackColor: $black-color;
-  blackColorLight: $black-light-color;
+  blackColorLight: $black-color-light;
   skeltonBaseColor: $skelton-base-color;
 }

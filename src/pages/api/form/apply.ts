@@ -1,6 +1,6 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
 
-import type { ListFormDoc, TwitterUserInfo } from '@/libs/firebase';
+import type { TwitterUserInfo } from '@/libs/firebase';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import {
@@ -39,9 +39,13 @@ const applyForm = withApiErrorHandler<TwitterUserInfo | {}>(
       throw { status: 404, statusText: 'list does not exist' };
     }
     if (list.data.status !== LIST_FORM_STATUS.OPEN) {
-      res.status(406).send(list.data.twitter);
+      res.status(406).send({});
       return;
+    } else if (user.userId === list.data.user.doc_id) {
+      await req.session.destroy();
+      res.status(202).send({ ok: false, text: 'does not request to own list' });
     }
+
     await firestoreApi.createListFormApplier(
       { id: user.userId, twitter: twitter.profile },
       listId
@@ -83,7 +87,6 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
       res.status(406).send({
         ok: false,
         text: 'this list is not available now',
-        data: list,
       });
       return;
     }
@@ -106,10 +109,6 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
 
     // twitterのリスト更新
     if (status === APPLY_STATUS.ALLOW) {
-      const l = await twitterApi.findListById(
-        twitter.token,
-        list.twitter_list_id //'1335245385116205056'
-      );
       const isSuccess = await twitterApi.addListMember(
         twitter.token,
         list.twitter_list_id,

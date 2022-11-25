@@ -5,8 +5,9 @@ import styles from './style.module.scss';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   theme?: 'default' | 'primary' | 'warn' | 'error';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'xm' | 'lg';
   onClick?: () => void;
+  icon?: React.ReactNode;
 }
 
 /**
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   theme = 'default',
   size = 'md',
   className,
+  icon,
   children,
   ...props
 }: ButtonProps) => {
@@ -25,7 +27,8 @@ const Button: React.FC<ButtonProps> = ({
       className={clsx(styles.btn, className, styles[theme], styles[size])}
       {...props}
     >
-      {children}
+      <div className={styles.icon}>{icon ? <>{icon}</> : null}</div>
+      <label>{children}</label>
     </button>
   );
 };

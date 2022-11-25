@@ -4,6 +4,13 @@
   gap: 20px;
 }
 
+.list-item {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 40px 24px;
+  height: 100%;
+}
+
 .list-item-enter {
   opacity: 0;
 }

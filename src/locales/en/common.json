@@ -12,5 +12,20 @@
   "copiedUrl": "Copied url",
   "noList": "It seems like you don't have any list.",
   "navigateToTwitterAuth": "Twitter認証へ移動します...",
-  "applied": "参加を申請しました！"
+  "applied": "参加を申請しました！",
+  "allow": "Allow",
+  "deny": "Deny",
+  "congratulations": "Congratulations!",
+  "haveDoneAllRequests": "You've added all accounts to your list!",
+  "donateMessage": "このサービスを気に入ってくれた方はこちらからサーバー運用費をカンパしてもらえると、とっても助かります。",
+  "otherUsersJudgement": "過去の判定",
+  "whoAllowThisUser": "以下のユーザーは許可しました",
+  "whoDenyThisUser": "以下のユーザーは却下しました",
+  "joined": "Joined: ",
+  "followingCount": "Following",
+  "followerCount": "Followers",
+  "tweetCount": "Tweets",
+  "aiSayNothing": "No Judgement",
+  "yearsOld": " years old",
+  "aiGuessed": "AI guessed"
 }
