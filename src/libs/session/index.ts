@@ -4,6 +4,8 @@ import { unsealData } from 'iron-session';
 import type { TwitterUser } from '@/libs/twitter';
 import type { IronSession, IronSessionOptions } from 'iron-session';
 
+import { UserDoc } from '@/libs/firebase';
+
 export const sessionOptions: IronSessionOptions = {
   password: process.env.SESSION_PASSWORD as string,
   cookieName: 'tw-referral/session',
@@ -35,9 +37,7 @@ declare module 'iron-session' {
   interface IronSessionData {
     loggedIn: boolean;
     returnUrl?: string;
-    user: {
-      userId: string;
-    };
+    user: UserDoc;
     twitter: {
       token: string;
       expiresAt: Date;

@@ -25,6 +25,8 @@ const createForm = withApiErrorHandler<{ newId: string }>(async (req, res) => {
 
   if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
     throw { status: 401, statusText: "Session invalid'" };
+  } else if (!req.session.user.data.can_create_form) {
+    throw { status: 401, statusText: 'Unauthrization this modification' };
   } else if (typeof twListId === 'undefined') {
     throw { status: 400, statusText: "BAD REQUEST'" };
   }
@@ -43,7 +45,7 @@ const createForm = withApiErrorHandler<{ newId: string }>(async (req, res) => {
     members = await twitterApi.findListMembers(token, twListId, []);
   }
   const newId = await createListForm(
-    { id: user.userId, twitter: twitter.profile },
+    { id: user.doc_id, twitter: twitter.profile },
     list,
     members
   );
@@ -61,7 +63,7 @@ const getForms = withApiErrorHandler<{ data: Array<Form> }>(
       return;
     }
 
-    const forms = await firestoreApi.findFormsByUserId(user.userId);
+    const forms = await firestoreApi.findFormsByUserId(user.doc_id);
     const output: Array<Form> = [];
     await Promise.all(
       lists.map(async (list) => {
@@ -75,7 +77,7 @@ const getForms = withApiErrorHandler<{ data: Array<Form> }>(
           return;
         }
         const appliers = await firestoreApi.findAppliersByFormId(
-          user.userId,
+          user.doc_id,
           form.doc_id
         );
         output.push({

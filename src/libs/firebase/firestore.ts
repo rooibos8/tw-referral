@@ -154,21 +154,23 @@ export const createUser = async (newUser: {
     ai_guessed_age_ls: number | null;
     language: string;
   };
-}): Promise<string> => {
+}): Promise<UserDoc> => {
   try {
     const ref = doc<UserDoc>(
       collection(db, 'users') as CollectionReference<UserDoc>
     );
-    await setDoc<UserDoc>(ref, {
+    const user = {
       ...newUser,
       doc_id: ref.id,
       data: {
         ...newUser.data,
+        can_create_form: false,
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
       },
-    });
-    return ref.id;
+    };
+    await setDoc<UserDoc>(ref, user);
+    return user;
   } catch (e) {
     console.error('Error adding user: ', e);
     throw 'creating a new user has failed';
@@ -324,6 +326,7 @@ export const createListForm = async (
               data: {
                 twitter: member,
                 // リスト追加済み＝成人のためAIによる年齢判定はスキップ
+                can_create_form: false,
                 ai_guessed_age_gt: memberExists?.data.ai_guessed_age_gt ?? 19,
                 ai_guessed_age_ls: memberExists?.data.ai_guessed_age_ls ?? null,
                 created_at: memberExists?.data.created_at ?? serverTimestamp(),
@@ -441,6 +444,7 @@ export const createListFormApplier = async (
       user: {
         doc_id: user.id,
         twitter: user.twitter,
+        can_create_form: false,
         ai_guessed_age_gt: userData.data.ai_guessed_age_gt,
         ai_guessed_age_ls: userData.data.ai_guessed_age_ls,
       },

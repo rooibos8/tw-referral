@@ -17,6 +17,7 @@ export type UserInfo = {
   doc_id: string;
   ai_guessed_age_gt: number | null;
   ai_guessed_age_ls: number | null;
+  can_create_form: boolean;
   twitter: TwitterUserInfo;
 };
 

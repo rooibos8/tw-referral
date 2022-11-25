@@ -28,7 +28,7 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
 
-    const form = await firestoreApi.findListFormById(user.userId, formId);
+    const form = await firestoreApi.findListFormById(user.doc_id, formId);
     if (typeof form === 'undefined') {
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
@@ -36,7 +36,7 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
     const resData: GetAppliersApiResponse = { data: [] };
 
     const appliers = await firestoreApi.findAppliersByFormId(
-      user.userId,
+      user.doc_id,
       formId
     );
     const stayApplier = appliers.filter(
@@ -83,7 +83,7 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
               ? async () => {
                   // リストにすでに存在する人はALLOWに更新
                   await firestoreApi.updateApplyStatus(
-                    { id: user.userId, twitter: twitter.profile },
+                    { id: user.doc_id, twitter: twitter.profile },
                     formId,
                     applier.user_doc_id,
                     APPLY_STATUS.ALLOW
@@ -93,7 +93,7 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
                   // Twitterリストに存在しない＆ヒストリーが存在する場合は、ヒストリーを削除
                   await firestoreApi.deleteUserAllowedHistoryByUserId(
                     applier.user_doc_id,
-                    user.userId
+                    user.doc_id
                   );
                 },
           ]);

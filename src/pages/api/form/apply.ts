@@ -41,13 +41,13 @@ const applyForm = withApiErrorHandler<TwitterUserInfo | {}>(
     if (list.data.status !== LIST_FORM_STATUS.OPEN) {
       res.status(406).send({});
       return;
-    } else if (user.userId === list.data.user.doc_id) {
+    } else if (user.doc_id === list.data.user.doc_id) {
       await req.session.destroy();
       res.status(202).send({ ok: false, text: 'does not request to own list' });
     }
 
     await firestoreApi.createListFormApplier(
-      { id: user.userId, twitter: twitter.profile },
+      { id: user.doc_id, twitter: twitter.profile },
       listId
     );
 
@@ -79,7 +79,7 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
 
-    const list = await firestoreApi.findListFormById(user.userId, listId);
+    const list = await firestoreApi.findListFormById(user.doc_id, listId);
     if (typeof list === 'undefined') {
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
@@ -92,7 +92,7 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
     }
 
     const applier = await firestoreApi.findApplierByApplierId(
-      user.userId,
+      user.doc_id,
       listId,
       applierId
     );
@@ -101,7 +101,7 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
     }
 
     await firestoreApi.updateApplyStatus(
-      { id: user.userId, twitter: twitter.profile },
+      { id: user.doc_id, twitter: twitter.profile },
       listId,
       applierId,
       status
@@ -117,7 +117,7 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
       if (!isSuccess) {
         // 失敗した場合は切り戻し
         await firestoreApi.updateApplyStatus(
-          { id: user.userId, twitter: twitter.profile },
+          { id: user.doc_id, twitter: twitter.profile },
           listId,
           applierId,
           applier?.data.status as ApplyStatus

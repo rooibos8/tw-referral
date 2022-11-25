@@ -24,8 +24,7 @@ const authMe = withApiErrorHandler<{
     const token = await twitterApi.getAccessToken(req, false);
 
     // ユーザーが存在しない場合は作成しよう
-    const userDoc = await firestoreApi.findUserByTwitterId(token.profile.id);
-    let userId: string = '';
+    let userDoc = await firestoreApi.findUserByTwitterId(token.profile.id);
     if (typeof userDoc === 'undefined') {
       const tweets = await twitterApi.findTweets(token.token, token.profile.id);
       let min = null;
@@ -35,7 +34,7 @@ const authMe = withApiErrorHandler<{
           tweets.map((tweet) => tweet.text)
         ));
       }
-      userId = await firestoreApi.createUser({
+      userDoc = await firestoreApi.createUser({
         twitter_id: token.profile.id,
         data: {
           twitter: {
@@ -49,10 +48,8 @@ const authMe = withApiErrorHandler<{
           language: 'jp',
         },
       });
-    } else {
-      userId = userDoc.doc_id;
     }
-    req.session.user = { userId };
+    req.session.user = userDoc;
     req.session.loggedIn = true;
     await req.session.save();
     res
