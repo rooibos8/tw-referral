@@ -5,10 +5,14 @@ import React from 'react';
 
 import styles from './style.module.scss';
 
-import type { LinkProps } from 'next/link';
-
 import { Title } from '@/components/core';
 import { ArrowBackIcon } from '@/components/icons';
+
+const BACK_TO_LIST: Record<string, string> = {
+  '/form/[listId]/[userId]': '/form/[listId]',
+  '/form/[listId]': '/mypage',
+  '/form/new': '/mypage',
+};
 
 const BackButton: React.FC<{
   href?: string;
@@ -16,7 +20,15 @@ const BackButton: React.FC<{
   const { t } = useTranslation();
   const router = useRouter();
   const handleClickBack = () => {
-    router.back();
+    let url = BACK_TO_LIST[router.pathname];
+    const { listId, userId } = router.query as {
+      listId?: string;
+      userId?: string;
+    };
+    url = url
+      .replace('[listId]', listId ?? '')
+      .replace('[userId]', userId ?? '');
+    router.push(url);
   };
 
   return href ? (

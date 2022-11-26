@@ -47,7 +47,7 @@ const Profile: React.FC<UserProfileProps> = ({
           </span>
         ) : null}
       </div>
-      {username}
+      @{username}
     </div>
   </div>
 );

@@ -56,6 +56,7 @@ const applyForm = withApiErrorHandler<TwitterUserInfo | {}>(
     } else if (user.doc_id === list.data.user.doc_id) {
       await req.session.destroy();
       res.status(202).send({ ok: false, text: 'does not request to own list' });
+      return;
     }
 
     await firestoreApi.createListFormApplier(

@@ -68,27 +68,30 @@ const getForms = withApiErrorHandler<{ data: Array<Form> }>(
     await Promise.all(
       lists.map(async (list) => {
         const form = forms.find((f) => f.twitter_list_id === list.id);
-        if (typeof form === 'undefined') {
-          output.push({
-            name: list.name,
-            twitter: list,
-            appliers: [],
-          });
-          return;
-        }
-        const appliers = await firestoreApi.findAppliersByFormId(
-          user.doc_id,
-          form.doc_id
-        );
-        output.push({
-          id: form.doc_id,
+        let value: Form = {
           name: list.name,
-          status: form.data.status,
           twitter: list,
-          appliers: appliers
-            .filter((a) => a.data.status === APPLY_STATUS.STAY)
-            .map((a) => a.data.user),
-        });
+          appliers: [],
+        };
+        if (typeof form !== 'undefined') {
+          const appliers = await firestoreApi.findAppliersByFormId(
+            user.doc_id,
+            form.doc_id
+          );
+          value = {
+            ...value,
+            id: form.doc_id,
+            status: form.data.status,
+            appliers: appliers
+              .filter((a) => a.data.status === APPLY_STATUS.STAY)
+              .map((a) => a.data.user),
+          };
+        }
+        if (value.appliers.length > 0) {
+          output.splice(0, 0, value);
+        } else {
+          output.push(value);
+        }
       })
     );
 

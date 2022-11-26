@@ -37,7 +37,6 @@ export type GetAppliersApiResponse = {
 };
 
 export type GetTwitterProfileApiResponse = UserDoc & {
-  tweets?: Array<Tweet>;
   twitter?: TwitterProfile;
 };
 

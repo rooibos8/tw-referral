@@ -155,7 +155,7 @@ export default function Apply({
               <UserIcon src={profileImageUrl ?? ''} size={120} />
               <div className={styles['user-name']}>
                 <Title>{name}</Title>
-                <span>{userName}</span>
+                <span>@{userName}</span>
               </div>
             </div>
             <div className={styles['sub-message']}>

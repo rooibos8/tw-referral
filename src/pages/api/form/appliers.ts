@@ -43,7 +43,6 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
       (a) => a.data.status === APPLY_STATUS.STAY
     );
     if (stayApplier.length > 0) {
-      // リストに含まれていたらAllow扱い＆ヒストリー作成
       const existsListMembers = await twitterApi.findListMembers(
         twitter.token,
         form.twitter_list_id,
@@ -66,36 +65,38 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
           };
           await Promise.all([
             // allowed回数の取得
-            async () => {
+            (async () => {
               const allowed = await firestoreApi.findUserAllowedHistoryByUserId(
                 applier.user_doc_id
               );
+              console.log('!!allowed!!!');
+              console.log(allowed);
               data.user.allowed = allowed.length;
-            },
+            })(),
             // denied回数の取得
-            async () => {
+            (async () => {
               const denied = await firestoreApi.findUserDeniedHistoryByUserId(
                 applier.user_doc_id
               );
               data.user.denied = denied.length;
-            },
-            alreadyAllowed
-              ? async () => {
-                  // リストにすでに存在する人はALLOWに更新
-                  await firestoreApi.updateApplyStatus(
-                    { id: user.doc_id, twitter: twitter.profile },
-                    formId,
-                    applier.user_doc_id,
-                    APPLY_STATUS.ALLOW
-                  );
-                }
-              : async () => {
-                  // Twitterリストに存在しない＆ヒストリーが存在する場合は、ヒストリーを削除
-                  await firestoreApi.deleteUserAllowedHistoryByUserId(
-                    applier.user_doc_id,
-                    user.doc_id
-                  );
-                },
+            })(),
+            (async () => {
+              if (alreadyAllowed) {
+                // リストにすでに存在する人はALLOWに更新
+                await firestoreApi.updateApplyStatus(
+                  { id: user.doc_id, twitter: twitter.profile },
+                  formId,
+                  applier.user_doc_id,
+                  APPLY_STATUS.ALLOW
+                );
+              } else {
+                // Twitterリストに存在しない＆ヒストリーが存在する場合は、ヒストリーを削除
+                await firestoreApi.deleteUserAllowedHistoryByUserId(
+                  applier.user_doc_id,
+                  user.doc_id
+                );
+              }
+            })(),
           ]);
           resData.data.push(data);
         })

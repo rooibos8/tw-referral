@@ -432,8 +432,6 @@ export const createListFormApplier = async (
   user: {
     id: string;
     twitter: TwitterUserInfo;
-    aiGuessedAgeGt?: number;
-    aiGuessedAgeLs?: number;
   },
   listFormId: string
 ): Promise<ListFormDoc> => {

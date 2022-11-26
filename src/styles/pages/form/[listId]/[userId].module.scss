@@ -82,8 +82,66 @@
   flex: 1;
 }
 
+.timeline-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
 .judge-button-group {
   display: flex;
   gap: 24px;
   justify-content: center;
+}
+
+.modal-root {
+  background-color: $base-theme-color;
+  color: $default-color;
+  padding: 16px;
+}
+
+.modal-body {
+  display: grid;
+  gap: 23px;
+  grid-template-rows: 1.3em 1fr 1.3em 1fr;
+  height: calc(100% - 44px);
+  overflow: scroll;
+  width: 100vw;
+  transform: translate(-16px, 0);
+}
+
+.modal-close {
+  color: $default-color;
+}
+
+.modal-list-item {
+  background-color: $default-color;
+  padding: 12px;
+  color: $black-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-text-with-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.modal-icon {
+  height: 1.5em;
+  height: 1.5em;
+  margin-right: 4px;
+}
+
+.modal-icon-allow {
+  color: $primary-color;
+  margin-right: 6px;
+}
+
+.modal-icon-deny {
+  color: $warn-color;
 }

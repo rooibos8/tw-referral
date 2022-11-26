@@ -35,22 +35,11 @@ const getTwitterProfile = withApiErrorHandler<GetTwitterProfileApiResponse>(
       tweets?: Array<Tweet>;
       twitter?: TwitterProfile;
     } = applier;
-    await Promise.all([
-      (async () => {
-        const profile = await twitterApi.findUser(
-          twitter.token,
-          applier.twitter_id
-        );
-        resData.twitter = profile;
-      })(),
-      (async () => {
-        const tweets = await twitterApi.findTweets(
-          twitter.token,
-          applier.twitter_id
-        );
-        resData.tweets = tweets;
-      })(),
-    ]);
+    const profile = await twitterApi.findUser(
+      twitter.token,
+      applier.twitter_id
+    );
+    resData.twitter = profile;
     res.status(200).send(resData);
   }
 );

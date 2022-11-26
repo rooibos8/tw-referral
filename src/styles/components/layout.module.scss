@@ -6,7 +6,11 @@
 }
 
 .main-with-footer {
-  height: calc(100vh - 60px - 54px);
+  min-height: calc(100vh - 60px - 54px);
+}
+
+.main-with-twitter-timeline {
+  height: calc(100vh - 60px);
 }
 
 .main-container {

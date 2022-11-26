@@ -1,5 +1,7 @@
 import { Modal } from '@mantine/core';
 import { DoNotDisturb, DoneAll, OpenInNew, Check } from '@mui/icons-material';
+import clsx from 'clsx';
+import { Timestamp } from 'firebase/firestore/lite';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -9,12 +11,12 @@ import { useRecoilState } from 'recoil';
 
 import type { UiState } from '@/store';
 
-import { Button, UserProfile, Text } from '@/components';
+import { Button, UserProfile, Text, Loading } from '@/components';
 import { GetTwitterProfileApiResponse } from '@/constants';
 import * as api from '@/libs/api';
 import { JudgeHistoryDoc, UserDoc } from '@/libs/firebase';
 import { withSessionSsr } from '@/libs/session/client';
-import { Tweet, TwitterProfile } from '@/libs/twitter';
+import { TwitterProfile } from '@/libs/twitter';
 
 import { uiState } from '@/store';
 import styles from '@/styles/pages/form/[listId]/[userId].module.scss';
@@ -31,7 +33,6 @@ export default function New() {
   const [applier, setApplier] = useState<
     UserDoc & { twitter?: TwitterProfile }
   >();
-  const [tweets, setTweets] = useState<Array<Tweet>>([]);
   const [allowedHistory, setAllowedHistory] = useState<Array<JudgeHistoryDoc>>(
     []
   );
@@ -42,84 +43,18 @@ export default function New() {
     allowed: 0,
     denied: 0,
   });
+  const [isFrameLoading, setIsFrameLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!userId) return;
 
     (async () => {
       setUi({ isLoading: true });
-      // const res = {
-      //   doc_id: '6ciDn1GTK0nqMsPzs856',
-      //   twitter_id: '1336003094891515904',
-      //   data: {
-      //     twitter: {
-      //       name: 'Newclientbeta',
-      //       username: 'newclientbeta',
-      //       id: '1336003094891515904',
-      //       profile_image_url:
-      //         'https://pbs.twimg.com/profile_images/1338471056525291527/bw-yNZ8K_normal.jpg',
-      //     },
-      //     ai_guessed_age_gt: 0,
-      //     denied: 0,
-      //     ai_guessed_age_ls: 0,
-      //     allowed: 0,
-      //     created_at: Timestamp.now(),
-      //     updated_at: Timestamp.now(),
-      //   },
-      //   twitter: {
-      //     protected: false,
-      //     name: 'Newclientbeta',
-      //     id: '1336003094891515904',
-      //     description:
-      //       'I will deliver a new twitter client app for taking safety communication to everyone who attacked by anonymous account on Twitter. Please waiting.',
-      //     profile_image_url:
-      //       'https://pbs.twimg.com/profile_images/1338471056525291527/bw-yNZ8K_normal.jpg',
-      //     created_at: '2020-12-07T17:42:23.000Z',
-      //     username: 'newclientbeta',
-      //     verified: false,
-      //     public_metrics: {
-      //       followers_count: 0,
-      //       following_count: 3,
-      //       tweet_count: 10,
-      //       listed_count: 0,
-      //     },
-      //     url: 'https://twitter.com/newclientbeta',
-      //   },
-      //   tweets: [
-      //     { id: '1550671862006308865', text: 'test https://t.co/AhsbdZZxBI' },
-      //     {
-      //       id: '1549354768853712896',
-      //       text: 'やったー！ https://t.co/0ntZM4HYLk',
-      //     },
-      //     {
-      //       id: '1549054045645848576',
-      //       text: 'test4 https://t.co/0kmjIqqMFX',
-      //     },
-      //     {
-      //       id: '1549053830100238338',
-      //       text: 'test2 https://t.co/vcckAA8cd6',
-      //     },
-      //     {
-      //       id: '1549053737171558401',
-      //       text: 'test2 https://t.co/SsPUTCaGLt https://t.co/SsPUTCaGLt https://t.co/SsPUTCaGLt',
-      //     },
-      //     { id: '1549053361084805120', text: 'https://t.co/eyuT9JLxbp' },
-      //     { id: '1549049398973255680', text: 'test https://t.co/nsNw1yGAeF' },
-      //     {
-      //       id: '1549048497424449537',
-      //       text: 'just setting up my #TwitterAPI',
-      //     },
-      //     { id: '1548867874588336129', text: 'aaaaaaaa' },
-      //     { id: '1548862943818788864', text: 'tweet test' },
-      //   ],
-      // };
       const res = await api.getTwitterProfile(userId);
+      console.log(JSON.stringify(res, null, 2));
       if (res) {
-        let { tweets, twitter, ...data } = res;
+        let { twitter, ...data } = res;
         setApplier({ ...data, twitter });
-        if (typeof tweets !== 'undefined') {
-          setTweets(tweets);
-        }
       }
       setUi({ isLoading: false });
     })();
@@ -233,7 +168,15 @@ export default function New() {
             </div>
           </div>
           <div className={styles['timeline']}>
+            {isFrameLoading ? (
+              <div className={styles['timeline-loading']}>
+                <Loading />
+              </div>
+            ) : null}
             <Timeline
+              onLoad={() => {
+                setIsFrameLoading(false);
+              }}
               dataSource={{
                 sourceType: 'profile',
                 screenName: applier.twitter?.username,
@@ -249,7 +192,12 @@ export default function New() {
             >
               {t('allow')}
             </Button>
-            <Button size="xm" icon={<DoNotDisturb />} onClick={handleClickDeny}>
+            <Button
+              size="xm"
+              theme={'warn'}
+              icon={<DoNotDisturb />}
+              onClick={handleClickDeny}
+            >
               {t('deny')}
             </Button>
           </div>
@@ -258,28 +206,61 @@ export default function New() {
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title="Introduce yourself!"
+        classNames={{
+          modal: styles['modal-root'],
+          body: styles['modal-body'],
+          close: styles['modal-close'],
+        }}
         fullScreen
         transition="slide-up"
-        trapFocus
       >
-        <div>
+        <Text className={styles['modal-text-with-icon']}>
+          <DoneAll
+            className={clsx(styles['modal-icon'], styles['modal-icon-allow'])}
+          />
           {t('whoAllowThisUser')}
+        </Text>
+        <div className={styles['modal-list']}>
           {allowedHistory.map((h) => (
-            <div key={h.doc_id}>
-              <img src={h.data.twitter.profile_image_url} alt="profile_image" />
-              {h.data.twitter.name}
-              {h.data.twitter.username}
+            <div key={h.doc_id} className={styles['modal-list-item']}>
+              <UserProfile
+                profileImageUrl={h.data.twitter.profile_image_url}
+                name={h.data.twitter.name}
+                username={h.data.twitter.username}
+              />
+              <Text>
+                {new Timestamp(
+                  h.data.judged_at.seconds,
+                  h.data.judged_at.nanoseconds
+                )
+                  .toDate()
+                  .toLocaleDateString()}
+              </Text>
             </div>
           ))}
         </div>
-        <div>
+        <Text className={styles['modal-text-with-icon']}>
+          <DoNotDisturb
+            className={clsx(styles['modal-icon'], styles['modal-icon-deny'])}
+          />
           {t('whoDenyThisUser')}
+        </Text>
+        <div className={styles['modal-list']}>
           {deniedHistory.map((h) => (
-            <div key={h.doc_id}>
-              <img src={h.data.twitter.profile_image_url} alt="profile_image" />
-              {h.data.twitter.name}
-              {h.data.twitter.username}
+            <div key={h.doc_id} className={styles['modal-list-item']}>
+              <UserProfile
+                profileImageUrl={h.data.twitter.profile_image_url}
+                name={h.data.twitter.name}
+                username={h.data.twitter.username}
+              />
+              <Text>
+                {new Timestamp(
+                  h.data.judged_at.seconds,
+                  h.data.judged_at.nanoseconds
+                )
+                  .toDate()
+                  .toLocaleDateString()}
+              </Text>
             </div>
           ))}
         </div>

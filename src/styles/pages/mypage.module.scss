@@ -4,7 +4,8 @@
   display: grid;
   gap: 20px;
   height: 100%;
-  grid-template-rows: 1.3em 1fr 1.3em 1fr;
+  // grid-template-rows: 1.3em 1fr 1.3em 1fr;
+  grid-template-rows: 1.3em 1fr;
 }
 
 .list {

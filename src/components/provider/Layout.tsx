@@ -39,7 +39,9 @@ export default function Layout({ session, children }: LayoutProps) {
       {ui.isLoading ? <LoadingOverLay /> : null}
       <main
         className={clsx(styles.main, {
-          [styles['main-with-fotter']]: router.pathname === '/',
+          [styles['main-with-footer']]: router.pathname === '/',
+          [styles['main-with-twitter-timeline']]:
+            router.pathname === '/form/[listId]/[userId]',
         })}
       >
         {router.pathname !== '/' &&
