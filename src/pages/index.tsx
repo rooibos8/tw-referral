@@ -24,8 +24,14 @@ export default function Top() {
       <section className={styles.section}>
         <h1>{t('serviceTitle')}</h1>
         <div className={styles.message}>
-          <Text>{t('serviceDescription')}</Text>
-          <Text size="sm">{t('serviceDescription2')}</Text>
+          {t('serviceDescription')
+            .split('\n')
+            .map((text) => (
+              <Text key={text}>{text}</Text>
+            ))}
+          <Text size="sm">
+            <i>{t('serviceDescription2')}</i>
+          </Text>
         </div>
         <Button
           icon={<TwitterIcon className={''} />}

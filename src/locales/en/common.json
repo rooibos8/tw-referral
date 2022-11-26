@@ -1,6 +1,6 @@
 {
   "serviceTitle": "This is a tool for sharing estimates of Twitter user's age",
-  "serviceDescription": "In order to protect under who are under the age of 18 from R18 content, we have using 'Limited access only Twitter list members/Twitter followers' features of some services like Poipiku or Privatter. But it's always very tough work guessing follower's age from bio, tweets or something, so I created this tool to help individual creators will be able to create and publish their works more safety & easier.",
+  "serviceDescription": "In order to protect those who are under the age of 18 from R18 content, we have using 'Limited access only Twitter list members/Twitter followers' features of some services like Poipiku or Privatter in Japanese creators community on Twitter. \n But it's always very tough work guessing a follower's age from a bio, tweets, or something by alone. Also, we don't have any official SaaS to verify the age instant on internet, so I created this tool. \n The concept is \"Share Your Judgement\" in terms of verifying age. \n I hope this tool helps individual creators be able to share their works with the community safer & easier.",
   "serviceDescription2": "If age verification is very hard work by myself, we will share the result!",
   "login": "Login with Twitter",
   "yourList": "My Lists",

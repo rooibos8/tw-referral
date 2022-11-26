@@ -1,0 +1,16 @@
+@import '@/styles/variables.module.scss';
+
+.footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  margin: 12px 0;
+  gap: 16px;
+  font-size: 1.5em;
+}
+
+.icon {
+  height: 1.5em;
+  width: 1.5em;
+}

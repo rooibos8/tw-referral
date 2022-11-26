@@ -12,6 +12,7 @@ import {
   UrlCopy,
   Header,
   LoadingOverLay,
+  Footer,
 } from '@/components';
 import { sessionState, uiState } from '@/store';
 import styles from '@/styles/components/layout.module.scss';
@@ -85,6 +86,7 @@ export default function Layout({ session, children }: LayoutProps) {
         ) : null}
         <div className={styles['main-container']}>{children}</div>
       </main>
+      <Footer />
     </>
   );
 }
