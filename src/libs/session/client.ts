@@ -37,6 +37,11 @@ export const withSessionSsr = <
   // @ts-ignore
   return withIronSessionSsr<P>(async (ctx) => {
     try {
+      ctx.res.setHeader(
+        'Cache-Control',
+        'public, s-maxage=10, stale-while-revalidate=59'
+      );
+
       const { loggedIn, user, twitter } = ctx.req.session;
       const session = {
         loggedIn: loggedIn ?? null,
