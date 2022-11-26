@@ -293,7 +293,9 @@ export const findListMembers = async (
         const { data } = res;
         members = [
           ...members,
-          ...data.filter((d) => filterTwitterIds.includes(d.id)),
+          ...(Array.isArray(data)
+            ? data.filter((d) => filterTwitterIds.includes(d.id))
+            : []),
         ];
       } else {
         members = [...members, ...data];

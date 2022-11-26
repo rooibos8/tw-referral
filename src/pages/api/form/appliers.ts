@@ -69,8 +69,6 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
               const allowed = await firestoreApi.findUserAllowedHistoryByUserId(
                 applier.user_doc_id
               );
-              console.log('!!allowed!!!');
-              console.log(allowed);
               data.user.allowed = allowed.length;
             })(),
             // denied回数の取得
