@@ -85,7 +85,7 @@ export const getServerSideProps = withSessionSsr(async function ({
   const { name, username, profile_image_url }: PostApplyApiResponse =
     await applyRes.json();
 
-  const match = profile_image_url.match(new RegExp('/[^\\/]+$/'));
+  const match = profile_image_url.match(new RegExp('[^/]+$'));
 
   return {
     props: {
