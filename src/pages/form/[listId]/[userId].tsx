@@ -164,85 +164,81 @@ export default function New() {
   return (
     <>
       {typeof applier !== 'undefined' ? (
-        <div className={styles['container']}>
-          <div className={styles['twitter-profile-container']}>
-            <div>
-              <div className={styles['twitter-user-name']}>
-                <UserProfile
-                  href={applier?.twitter?.url ?? ''}
-                  profileImageUrl={applier?.twitter?.profile_image_url ?? ''}
-                  name={applier?.twitter?.name ?? ''}
-                  username={applier?.twitter?.username ?? ''}
-                />
-                <Text size="sm">
-                  {t('joined')}
-                  {applier?.twitter?.created_at
-                    ? new Date(
-                        applier?.twitter?.created_at
-                      ).toLocaleDateString()
-                    : ''}
-                </Text>
-              </div>
-              <div className={styles['twitter-description']}>
-                <Text>{applier?.twitter?.description ?? ''}</Text>
-              </div>
-              <div className={styles['twitter-public-metrics']}>
-                <Text size="sm">
-                  {applier?.twitter?.public_metrics.following_count}
-                  {t('followingCount')}
-                </Text>
-                <Text size="sm">
-                  {applier?.twitter?.public_metrics.followers_count}
-                  {t('followerCount')}
-                </Text>
-                <Text size="sm">
-                  {applier?.twitter?.public_metrics.tweet_count}
-                  {t('tweetCount')}
-                </Text>
-              </div>
-            </div>
-            <div className={styles['judge-history-grid']}>
-              <Text className={styles['judge-history-grid-header']}>
-                {t('aiGuessed')}
-              </Text>
-              <Text stress>
-                {!applier.data.ai_guessed_age_gt &&
-                !applier.data.ai_guessed_age_ls ? (
-                  t('aiSayNothing')
-                ) : (
-                  <>
-                    {applier.data.ai_guessed_age_gt || ''}〜
-                    {applier.data.ai_guessed_age_ls || ''}
-                    {t('yearsOld')}
-                  </>
-                )}
-              </Text>
-              <div
-                className={styles['view-other-users-judge']}
-                onClick={handleClickShowHistory}
-              >
-                <Text>{t('otherUsersJudgement')}</Text>
-                <OpenInNew />
-              </div>
-              <div className={styles['judge-history-other-users']}>
-                <div className={styles['text-with-icon']}>
-                  <DoneAll className={styles['icon-done']} />
-                  <Text stress>{judge.allowed}%</Text>
-                </div>
-                <div className={styles['text-with-icon']}>
-                  <DoNotDisturb className={styles['icon-deny']} />
-                  <Text stress>{judge.denied}%</Text>
-                </div>
-              </div>
-            </div>
-            <div className={styles['timeline']}>
-              <Timeline
-                dataSource={{
-                  sourceType: 'profile',
-                  screenName: applier.twitter?.username,
-                }}
+        <div className={styles['twitter-profile-container']}>
+          <div>
+            <div className={styles['twitter-user-name']}>
+              <UserProfile
+                href={applier?.twitter?.url ?? ''}
+                profileImageUrl={applier?.twitter?.profile_image_url ?? ''}
+                name={applier?.twitter?.name ?? ''}
+                username={applier?.twitter?.username ?? ''}
               />
+              <Text size="sm">
+                {t('joined')}
+                {applier?.twitter?.created_at
+                  ? new Date(applier?.twitter?.created_at).toLocaleDateString()
+                  : ''}
+              </Text>
             </div>
+            <div className={styles['twitter-description']}>
+              <Text>{applier?.twitter?.description ?? ''}</Text>
+            </div>
+            <div className={styles['twitter-public-metrics']}>
+              <Text size="sm">
+                {applier?.twitter?.public_metrics.following_count}
+                {t('followingCount')}
+              </Text>
+              <Text size="sm">
+                {applier?.twitter?.public_metrics.followers_count}
+                {t('followerCount')}
+              </Text>
+              <Text size="sm">
+                {applier?.twitter?.public_metrics.tweet_count}
+                {t('tweetCount')}
+              </Text>
+            </div>
+          </div>
+          <div className={styles['judge-history-grid']}>
+            <Text className={styles['judge-history-grid-header']}>
+              {t('aiGuessed')}
+            </Text>
+            <Text stress>
+              {!applier.data.ai_guessed_age_gt &&
+              !applier.data.ai_guessed_age_ls ? (
+                t('aiSayNothing')
+              ) : (
+                <>
+                  {applier.data.ai_guessed_age_gt || ''}〜
+                  {applier.data.ai_guessed_age_ls || ''}
+                  {t('yearsOld')}
+                </>
+              )}
+            </Text>
+            <div
+              className={styles['view-other-users-judge']}
+              onClick={handleClickShowHistory}
+            >
+              <Text>{t('otherUsersJudgement')}</Text>
+              <OpenInNew />
+            </div>
+            <div className={styles['judge-history-other-users']}>
+              <div className={styles['text-with-icon']}>
+                <DoneAll className={styles['icon-done']} />
+                <Text stress>{judge.allowed}%</Text>
+              </div>
+              <div className={styles['text-with-icon']}>
+                <DoNotDisturb className={styles['icon-deny']} />
+                <Text stress>{judge.denied}%</Text>
+              </div>
+            </div>
+          </div>
+          <div className={styles['timeline']}>
+            <Timeline
+              dataSource={{
+                sourceType: 'profile',
+                screenName: applier.twitter?.username,
+              }}
+            />
           </div>
           <div className={styles['judge-button-group']}>
             <Button

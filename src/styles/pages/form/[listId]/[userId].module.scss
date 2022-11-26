@@ -8,10 +8,11 @@
 }
 
 .twitter-profile-container {
-  flex: 1;
   display: flex;
   gap: 20px;
   flex-direction: column;
+  overflow: scroll;
+  height: 100%;
 }
 
 .twitter-user-name {
@@ -76,13 +77,12 @@
 }
 
 .timeline {
-  height: calc(100vh - 407px);
   overflow: scroll;
   border-radius: 12px;
+  flex: 1;
 }
 
 .judge-button-group {
-  padding: 20px 0 24px 0;
   display: flex;
   gap: 24px;
   justify-content: center;
