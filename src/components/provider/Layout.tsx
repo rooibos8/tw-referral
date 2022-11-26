@@ -44,18 +44,12 @@ export default function Layout({ session, children }: LayoutProps) {
       >
         {router.pathname !== '/' &&
         router.pathname !== '/mypage' &&
-        router.pathname !== '/apply' &&
+        router.pathname !== '/form/[listId]/apply' &&
         router.pathname !== '/404' &&
         router.pathname !== '/500' &&
         router.pathname !== '/429' ? (
           <div className={styles['sub-header']}>
-            <BackButton
-              href={
-                router.pathname === '/form/[listId]/apply'
-                  ? '/mypage'
-                  : undefined
-              }
-            />
+            <BackButton />
             {router.pathname === '/form/[listId]' ? (
               <>
                 <MTMenu position="bottom-end" withArrow>
