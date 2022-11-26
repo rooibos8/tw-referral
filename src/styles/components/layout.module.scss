@@ -5,6 +5,10 @@
   height: calc(100vh - 60px);
 }
 
+.main-with-footer {
+  height: calc(100vh - 60px - 54px);
+}
+
 .main-container {
   height: 100%;
 }

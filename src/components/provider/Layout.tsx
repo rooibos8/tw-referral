@@ -1,4 +1,5 @@
 import { Menu, Menu as MTMenu, Modal } from '@mantine/core';
+import clsx from 'clsx';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -36,7 +37,11 @@ export default function Layout({ session, children }: LayoutProps) {
     <>
       <Header />
       {ui.isLoading ? <LoadingOverLay /> : null}
-      <main className={styles.main}>
+      <main
+        className={clsx(styles.main, {
+          [styles['main-with-fotter']]: router.pathname === '/',
+        })}
+      >
         {router.pathname !== '/' &&
         router.pathname !== '/mypage' &&
         router.pathname !== '/apply' &&
@@ -86,7 +91,7 @@ export default function Layout({ session, children }: LayoutProps) {
         ) : null}
         <div className={styles['main-container']}>{children}</div>
       </main>
-      <Footer />
+      {router.pathname === '/' ? <Footer /> : null}
     </>
   );
 }
