@@ -1,3 +1,4 @@
+import {captureException} from "@sentry/nextjs"
 import React, { ErrorInfo } from 'react';
 
 interface Props {
@@ -19,7 +20,11 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // You can use your own error logging service here
-    console.log({ error, errorInfo });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log({ error, errorInfo });
+    } else {
+      captureException({error, errorInfo})
+    }
   }
   render() {
     // Check if the error is thrown

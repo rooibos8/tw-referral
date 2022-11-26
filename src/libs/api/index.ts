@@ -1,10 +1,11 @@
+import { captureException } from '@sentry/nextjs';
+
 import {
   APPLY_STATUS,
   GetAppliersApiResponse,
   GetApplyApiResponse,
   GetFormApiResponse,
   GetJudgeHistoryApiResponse,
-  GetTwitterListApiResponse,
   GetTwitterProfileApiResponse,
 } from '@/constants';
 
@@ -39,7 +40,11 @@ const _fetch = async <T>(
     }
     return data;
   } catch (err) {
-    console.error(err);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error(err);
+    } else {
+      captureException(err);
+    }
   }
 };
 
