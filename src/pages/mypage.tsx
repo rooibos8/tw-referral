@@ -59,7 +59,6 @@ export default function Mypage({ session }) {
         // })(),
         // 自分のリストを取得
         (async () => {
-          console.log(session);
           if (!session.user.data.can_create_form) {
             return;
           }
