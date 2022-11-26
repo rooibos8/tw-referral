@@ -24,9 +24,7 @@ export type UserInfo = {
 export type UserDoc = {
   doc_id: string;
   twitter_id: string;
-  data: Omit<UserInfo, 'doc_id'> & {
-    language?: string;
-  } & BaseProperty;
+  data: Omit<UserInfo, 'doc_id'> & BaseProperty;
 };
 
 export type ListFormDoc = {
@@ -51,6 +49,11 @@ export type ListFormApplierDoc = {
   data: {
     user: UserInfo;
     status: ApplyStatus;
+    owner: {
+      user_doc_id: string;
+      list_doc_id: string;
+      twitter: TwitterUserInfo;
+    };
   } & BaseProperty;
 };
 
@@ -67,4 +70,5 @@ export type AppSettingsDoc = {
     access_token: string;
     expires_at: Timestamp;
   };
+  creators: Array<string>;
 };

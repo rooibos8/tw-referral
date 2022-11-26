@@ -1,6 +1,7 @@
 import {
   APPLY_STATUS,
   GetAppliersApiResponse,
+  GetApplyApiResponse,
   GetFormApiResponse,
   GetJudgeHistoryApiResponse,
   GetTwitterListApiResponse,
@@ -42,6 +43,8 @@ const _fetch = async <T>(
   }
 };
 
+//export const useForm
+
 export const getForms = async (): Promise<GetFormApiResponse | void> => {
   return await _fetch<GetFormApiResponse>('/api/form');
 };
@@ -62,18 +65,26 @@ export const openForm = async ({
   });
 };
 
-export const getTwitterProfile = async (
-  userId: string
-): Promise<GetTwitterProfileApiResponse | void> => {
-  return await _fetch<GetTwitterProfileApiResponse>(
-    `/api/twitter/users/${userId}`
-  );
+// export const useApply
+export const getApply = async (): Promise<GetApplyApiResponse | void> => {
+  return await _fetch<GetApplyApiResponse>('/api/form/apply/');
 };
 
-export const getJudgeHistory = async (
-  userId: string
-): Promise<GetJudgeHistoryApiResponse | void> => {
-  return await _fetch<GetJudgeHistoryApiResponse>(`/api/history/${userId}`);
+export const backApply = async ({
+  listId,
+  applierId,
+}: {
+  listId: string;
+  applierId: string;
+}): Promise<{ ok: boolean } | void> => {
+  return await _fetch<{ ok: boolean }>('/api/form/apply', {
+    method: 'PUT',
+    body: JSON.stringify({
+      listId,
+      applierId,
+      status: APPLY_STATUS.STAY,
+    }),
+  });
 };
 
 export const allowApply = async ({
@@ -110,28 +121,12 @@ export const denyApply = async ({
   });
 };
 
-export const backApply = async ({
-  listId,
-  applierId,
-}: {
-  listId: string;
-  applierId: string;
-}): Promise<{ ok: boolean } | void> => {
-  return await _fetch<{ ok: boolean }>('/api/form/apply', {
-    method: 'PUT',
-    body: JSON.stringify({
-      listId,
-      applierId,
-      status: APPLY_STATUS.STAY,
-    }),
-  });
-};
-
-export const getAuthLink = async (
-  returnUrl: string
-): Promise<{ authUrl: string } | void> => {
-  return await _fetch<{ authUrl: string }>(
-    `/api/auth/me?returnUrl=${encodeURIComponent(returnUrl)}`
+// export const useUser
+export const getTwitterProfile = async (
+  userId: string
+): Promise<GetTwitterProfileApiResponse | void> => {
+  return await _fetch<GetTwitterProfileApiResponse>(
+    `/api/twitter/users/${userId}`
   );
 };
 
@@ -143,10 +138,26 @@ export const getAppliers = async (
   );
 };
 
-export const getTwitterList = async (
-  twListId: string
-): Promise<GetTwitterListApiResponse | void> => {
-  return await _fetch<GetTwitterListApiResponse>(
-    `/api/twitter/lists/${twListId}`
+// export const useJudgeHistory
+export const getJudgeHistory = async (
+  userId: string
+): Promise<GetJudgeHistoryApiResponse | void> => {
+  return await _fetch<GetJudgeHistoryApiResponse>(`/api/history/${userId}`);
+};
+
+// export const useAuth
+export const getAuthLink = async (
+  returnUrl: string
+): Promise<{ authUrl: string } | void> => {
+  return await _fetch<{ authUrl: string }>(
+    `/api/auth/me?returnUrl=${encodeURIComponent(returnUrl)}`
   );
 };
+
+// export const getTwitterList = async (
+//   twListId: string
+// ): Promise<GetTwitterListApiResponse | void> => {
+//   return await _fetch<GetTwitterListApiResponse>(
+//     `/api/twitter/lists/${twListId}`
+//   );
+// };

@@ -1,5 +1,6 @@
 import { useTranslation } from 'next-i18next';
 import React from 'react';
+import useSWR from 'swr';
 
 import { TwitterIcon, Button, Text } from '@/components';
 

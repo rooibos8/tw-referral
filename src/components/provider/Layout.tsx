@@ -4,10 +4,16 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 
-import { BackButton, MenuIcon, UrlCopy } from '@/components';
+import type { SessionState } from '@/store';
 
-import { Header, LoadingOverLay } from '@/components';
-import { SessionState, sessionState, uiState } from '@/store';
+import {
+  BackButton,
+  MenuIcon,
+  UrlCopy,
+  Header,
+  LoadingOverLay,
+} from '@/components';
+import { sessionState, uiState } from '@/store';
 import styles from '@/styles/components/layout.module.scss';
 
 type LayoutProps = {
@@ -19,7 +25,7 @@ export default function Layout({ session, children }: LayoutProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const { listId } = router.query as { listId: string };
-  const setSession = useSetRecoilState(sessionState);
+  const setSession = useSetRecoilState<SessionState>(sessionState);
   const ui = useRecoilValue(uiState);
   const [openedCopyModal, setOpenedCopyModal] = useState<boolean>(false);
   useEffect(() => {

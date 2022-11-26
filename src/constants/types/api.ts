@@ -2,6 +2,7 @@ import type { ListFormStatus, ApplyStatus } from '@/constants';
 
 import type {
   JudgeHistoryDoc,
+  ListFormApplierDoc,
   ListFormDoc,
   TwitterUserInfo,
   UserDoc,
@@ -56,6 +57,10 @@ export type GetTwitterListApiResponse = {
 export type UpdateApplyApiResponse = {
   ok: boolean;
   text?: string;
+};
+
+export type GetApplyApiResponse = {
+  data: Array<ListFormApplierDoc>;
 };
 
 export type PostApplyApiResponse = TwitterUserInfo;

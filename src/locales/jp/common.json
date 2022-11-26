@@ -14,6 +14,7 @@
   "doCopyUrl": "URLをコピーする",
   "copiedUrl": "URLをコピーしました",
   "noList": "リストを作成していないようですね",
+  "noRequest": "追加待ちのリストはありません",
   "navigateToTwitterAuth": "Twitter認証へ移動します...",
   "applied": "参加を申請しました！",
   "notAvailableList": "このリストは受付を停止しています",
@@ -28,10 +29,13 @@
   "whoAllowThisUser": "以下のユーザーは許可しました",
   "whoDenyThisUser": "以下のユーザーは却下しました",
   "joined": "開設: ",
-  "followingCount": "フォロー中",
-  "followerCount": "フォロワー",
-  "tweetCount": "件のツイート",
+  "followingCount": " フォロー中",
+  "followerCount": " フォロワー",
+  "tweetCount": " 件のツイート",
   "aiSayNothing": "判定なし",
   "yearsOld": "歳",
-  "aiGuessed": "AIの判定"
+  "aiGuessed": "AIの判定",
+  "yourRequest": "追加待ちのリスト",
+  "didNotAdd": "加入できませんでした",
+  "added": "追加されました"
 }

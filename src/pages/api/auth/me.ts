@@ -24,31 +24,38 @@ const authMe = withApiErrorHandler<{
     const token = await twitterApi.getAccessToken(req, false);
 
     // ユーザーが存在しない場合は作成しよう
+    const settings = await firestoreApi.getAppSetting();
     let userDoc = await firestoreApi.findUserByTwitterId(token.profile.id);
+
+    let min = userDoc?.data.ai_guessed_age_gt;
+    let max = userDoc?.data.ai_guessed_age_ls;
     if (typeof userDoc === 'undefined') {
       const tweets = await twitterApi.findTweets(token.token, token.profile.id);
-      let min = null;
-      let max = null;
       if (typeof tweets !== 'undefined' && tweets.length > 0) {
         ({ min, max } = await cotohaApi.getAgeEstimate(
           tweets.map((tweet) => tweet.text)
         ));
       }
-      userDoc = await firestoreApi.createUser({
-        twitter_id: token.profile.id,
-        data: {
-          twitter: {
-            id: token.profile.id,
-            name: token.profile.name,
-            username: token.profile.username,
-            profile_image_url: token.profile.profile_image_url,
-          },
-          ai_guessed_age_gt: min,
-          ai_guessed_age_ls: max,
-          language: 'jp',
-        },
-      });
     }
+
+    userDoc = await firestoreApi.createUser({
+      twitter_id: token.profile.id,
+      doc_id: userDoc?.doc_id,
+      data: {
+        twitter: {
+          id: token.profile.id,
+          name: token.profile.name,
+          username: token.profile.username,
+          profile_image_url: token.profile.profile_image_url,
+        },
+        ai_guessed_age_gt: min ?? null,
+        ai_guessed_age_ls: max ?? null,
+        can_create_form:
+          settings?.creators.some((id) => id === token.profile.username) ??
+          false,
+      },
+    });
+
     req.session.user = userDoc;
     req.session.loggedIn = true;
     await req.session.save();

@@ -1,6 +1,5 @@
 import { Modal } from '@mantine/core';
 import { DoNotDisturb, DoneAll, OpenInNew, Check } from '@mui/icons-material';
-import { Timestamp } from 'firebase/firestore/lite';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -10,7 +9,7 @@ import { useRecoilState } from 'recoil';
 
 import type { UiState } from '@/store';
 
-import { Button, UserProfile, Text, TwitterIcon } from '@/components';
+import { Button, UserProfile, Text } from '@/components';
 import { GetTwitterProfileApiResponse } from '@/constants';
 import * as api from '@/libs/api';
 import { JudgeHistoryDoc, UserDoc } from '@/libs/firebase';
@@ -61,7 +60,6 @@ export default function New() {
       //         'https://pbs.twimg.com/profile_images/1338471056525291527/bw-yNZ8K_normal.jpg',
       //     },
       //     ai_guessed_age_gt: 0,
-      //     language: 'jp',
       //     denied: 0,
       //     ai_guessed_age_ls: 0,
       //     allowed: 0,

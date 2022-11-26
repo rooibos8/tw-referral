@@ -14,6 +14,7 @@
   "doCopy": "URL을 복사하기",
   "copiedUrl": "URL을 복사했습니다",
   "noList": "리스트를 작성하지 않으셨나봐요.",
+  "noRequest": "당신의 신청은 모두 처리되었습니다",
   "navigateToTwitterAuth": "Twitter 인증으로 이동합니다...",
   "applied": "참가 신청했어요!",
   "allow": "Allow",
@@ -25,10 +26,13 @@
   "whoAllowThisUser": "이하의 유저는 허가했습니다.",
   "whoDenyThisUser": "이하의 유저는 각하했습니다",
   "joined": "Joi개설.ned :",
-  "followingCount": "팔로우 중",
-  "followerCount": "팔로워",
-  "tweetCount": "트윗",
+  "followingCount": " 팔로우 중",
+  "followerCount": " 팔로워",
+  "tweetCount": " 트윗",
   "aiSayNothing": "판정 없음",
   "yearsOld": " 살",
-  "aiGuessed": "AI 판정"
+  "aiGuessed": "AI 판정",
+  "yourRequest": "나의 신청",
+  "didNotAdd": "加入できませんでした",
+  "added": "追加されました"
 }

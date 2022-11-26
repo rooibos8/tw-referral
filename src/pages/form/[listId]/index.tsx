@@ -82,7 +82,7 @@ export default function Appliers() {
         <>
           <h3>{t('congratulations')}</h3>
           <p>{t('haveDoneAllRequests')}</p>
-          <p>{t('donateMessage')}</p>
+          {/* <p>{t('donateMessage')}</p> */}
         </>
       ) : null}
     </div>

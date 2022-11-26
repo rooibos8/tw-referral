@@ -6,6 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import {
   ApplyStatus,
   APPLY_STATUS,
+  GetApplyApiResponse,
   LIST_FORM_STATUS,
   UpdateApplyApiResponse,
 } from '@/constants';
@@ -15,6 +16,17 @@ import {
   isValidSession,
   sessionOptions,
 } from '@/libs/session';
+
+const getApply = withApiErrorHandler<GetApplyApiResponse>(async (req, res) => {
+  const user = req.session.user;
+
+  if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
+    throw { status: 401, statusText: 'BAD REQUEST' };
+  }
+
+  const lists = await firestoreApi.findFormsByApplierId(user.doc_id);
+  res.status(200).send({ data: lists ?? [] });
+});
 
 const applyForm = withApiErrorHandler<TwitterUserInfo | {}>(
   async (req, res) => {
@@ -136,7 +148,9 @@ export default withIronSessionApiRoute(function (
 ) {
   try {
     const { method } = req;
-    if (method === 'POST') {
+    if (method === 'GET') {
+      getApply(req, res);
+    } else if (method === 'POST') {
       applyForm(req, res);
     } else if (method === 'PUT') {
       updateApply(req, res);

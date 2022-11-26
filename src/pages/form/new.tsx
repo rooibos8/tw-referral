@@ -16,13 +16,21 @@ export const getServerSideProps = withSessionSsr(
   // @ts-ignore
   async ({ query, req, res }) => {
     const { id, name } = query;
+    if (!req.session.user.data.can_create_form) {
+      return {
+        redirect: {
+          destination: '/mypage',
+          permanent: false,
+        },
+      };
+    }
     if (typeof id !== 'string' || typeof name !== 'string') {
       console.log('id name not exists');
       return {
         notFound: true,
       };
     } else {
-      console.log('lost does not exists');
+      console.log('list does not exists');
       const listRes = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/twitter/lists/${id}`,
         {

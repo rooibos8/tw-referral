@@ -58,7 +58,7 @@ export const withSessionSsr = <
       const i18n = await serverSideTranslations(ctx.locale ?? 'jp', ['common']);
       if (handler) {
         const p = await handler(ctx);
-        if ('props' in p) {
+        if (p && 'props' in p) {
           return {
             props: {
               ...p.props,

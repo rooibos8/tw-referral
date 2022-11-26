@@ -1,6 +1,6 @@
 {
   "serviceTitle": "This is a tool for sharing estimates of Twitter user's age",
-  "serviceDescription": "In order to protect under 18 years old users from our adult contents, we have using 'Limited viewing for Twitter list members/Twitter followers' features of some services like Poipiku or Privatter. But it's always very hard work estimating follower's age from bio, tweets or something, so I made this tool.",
+  "serviceDescription": "In order to protect under who are under the age of 18 from R18 content, we have using 'Limited access only Twitter list members/Twitter followers' features of some services like Poipiku or Privatter. But it's always very tough work guessing follower's age from bio, tweets or something, so I created this tool to help individual creators will be able to create and publish their works more safety & easier.",
   "serviceDescription2": "If age verification is very hard work by myself, we will share the result!",
   "login": "Login with Twitter",
   "yourList": "My Lists",
@@ -14,6 +14,7 @@
   "doCopyUrl": "Copy url",
   "copiedUrl": "Copied url",
   "noList": "It seems like you don't have any list.",
+  "noRequest": "Your requests were all processed",
   "navigateToTwitterAuth": "You are redirecting to Twitter authorization...",
   "applied": "You've  submitted a request to entry this account's list",
   "allow": "Allow",
@@ -25,10 +26,13 @@
   "whoAllowThisUser": "This account has allowed by below accounts.",
   "whoDenyThisUser": "This account has denied by below accounts.",
   "joined": "Joined: ",
-  "followingCount": "Following",
-  "followerCount": "Followers",
-  "tweetCount": "Tweets",
+  "followingCount": " Following",
+  "followerCount": " Followers",
+  "tweetCount": " Tweets",
   "aiSayNothing": "No Judgement",
   "yearsOld": " years old",
-  "aiGuessed": "AI guessed"
+  "aiGuessed": "AI estimated",
+  "yourRequest": "My Requests",
+  "didNotAdd": "加入できませんでした",
+  "added": "追加されました"
 }

@@ -46,23 +46,33 @@ const _getDocs = async <D>(col: CollectionReference<D>): Promise<Array<D>> => {
 
 const _getDocsByQuery = async <Q, D>(
   col: CollectionReference,
-  wheres: [string, 'in' | 'not-in', Array<Q>]
+  wheres: [string, WhereFilterOp, Array<Q> | Q]
 ): Promise<Array<D>> => {
   try {
     let result: Array<D> = [];
     const [field, op, values] = wheres;
-    const _values: Array<Q> = [...values];
-    await Promise.all(
-      Array(Math.ceil(_values.length / 10)).map(async () => {
-        const _vs = _values.splice(0, 10);
-        const q = query<D>(
-          col as CollectionReference<D>,
-          where(field, op, _vs)
-        );
-        const snap = await getDocs(q);
-        result = [...result, ...snap.docs.map((d) => d.data())];
-      })
-    );
+    if (op === 'in' || op === 'not-in') {
+      const _values: Array<Q> = [...(values as Array<Q>)];
+      await Promise.all(
+        Array(Math.ceil(_values.length / 10)).map(async () => {
+          const _vs = _values.splice(0, 10);
+          const q = query<D>(
+            col as CollectionReference<D>,
+            where(field, op, _vs)
+          );
+          const snap = await getDocs(q);
+          result = [...result, ...snap.docs.map((d) => d.data())];
+        })
+      );
+    } else {
+      const q = query<D>(
+        col as CollectionReference<D>,
+        where(field, op, values)
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => d.data());
+    }
+
     return result;
   } catch (e) {
     console.error('Error finding user: ', e);
@@ -105,9 +115,12 @@ const _getDocByQuery = async <Q, D>(
   }
 };
 
-export const updateAppSetting = async (
-  update: AppSettingsDoc
-): Promise<void> => {
+export const updateAppSetting = async (update: {
+  cotoha: {
+    access_token: string;
+    expires_at: Timestamp;
+  };
+}): Promise<void> => {
   try {
     await setDoc<AppSettingsDoc>(
       doc(
@@ -148,23 +161,29 @@ export const getAppSetting = async (): Promise<AppSettingsDoc | undefined> => {
 
 export const createUser = async (newUser: {
   twitter_id: string;
+  doc_id?: string;
   data: {
     twitter: TwitterUserInfo;
     ai_guessed_age_gt: number | null;
     ai_guessed_age_ls: number | null;
-    language: string;
+    can_create_form: boolean;
   };
 }): Promise<UserDoc> => {
   try {
-    const ref = doc<UserDoc>(
-      collection(db, 'users') as CollectionReference<UserDoc>
-    );
+    let ref: DocumentReference<UserDoc>;
+    if (typeof newUser.doc_id === 'undefined') {
+      ref = doc<UserDoc>(
+        collection(db, 'users') as CollectionReference<UserDoc>
+      );
+    } else {
+      ref = doc(db, 'users', newUser.doc_id) as DocumentReference<UserDoc>;
+    }
+
     const user = {
       ...newUser,
-      doc_id: ref.id,
+      doc_id: typeof newUser.doc_id !== 'undefined' ? newUser.doc_id : ref.id,
       data: {
         ...newUser.data,
-        can_create_form: false,
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
       },
@@ -448,6 +467,11 @@ export const createListFormApplier = async (
         ai_guessed_age_gt: userData.data.ai_guessed_age_gt,
         ai_guessed_age_ls: userData.data.ai_guessed_age_ls,
       },
+      owner: {
+        user_doc_id: list.data.user.doc_id,
+        list_doc_id: list.doc_id,
+        twitter: list.data.user.twitter,
+      },
       status: APPLY_STATUS.STAY,
       created_at: Timestamp.now(),
       updated_at: Timestamp.now(),
@@ -584,6 +608,19 @@ export const findFormByTwitterListId = async (
     console.error('Error finding form by twitter list id: ', e);
     throw 'finding specific user by twitter name has failed';
   }
+};
+
+export const findFormsByApplierId = async (
+  applierId: string
+): Promise<Array<ListFormApplierDoc> | undefined> => {
+  const lists = await _getDocsByQuery<string, ListFormApplierDoc>(
+    collectionGroup(
+      db,
+      'list_form_appliers'
+    ) as CollectionReference<ListFormApplierDoc>,
+    ['doc_id', '==', applierId]
+  );
+  return lists;
 };
 
 export const findUserAllowedHistoryByJudgedUserId = async (

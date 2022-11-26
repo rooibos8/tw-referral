@@ -1,7 +1,14 @@
-.list-container {
-  display: flex;
-  flex-direction: column;
+@import '@/styles/variables.module.scss';
+
+.container {
+  display: grid;
   gap: 20px;
+  height: 100%;
+  grid-template-rows: 1.3em 1fr 1.3em 1fr;
+}
+
+.list {
+  overflow: scroll;
 }
 
 .list-item {
@@ -17,4 +24,12 @@
 .list-item-enter-active {
   opacity: 1;
   transition: opacity 500ms ease-in;
+}
+
+.list-badge-root {
+  background-color: $base-theme-color;
+}
+
+.list-badge-label {
+  color: $default-color;
 }
