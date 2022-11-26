@@ -31,6 +31,7 @@ export const getServerSideProps = withSessionSsr(async ({ req }) => {
   }
 });
 
+// @ts-ignore
 export default function Mypage({ session }) {
   const { t } = useTranslation();
   const [lists, setLists] = useState<Array<{ skeltonId: string; form?: Form }>>(
