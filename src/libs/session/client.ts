@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/nextjs';
 import { withIronSessionSsr } from 'iron-session/next';
 import {
   GetServerSideProps,
@@ -85,8 +86,7 @@ export const withSessionSsr = <
         props: { session, ...i18n },
       };
     } catch (ex) {
-      console.error(ex);
-      throw ex;
+      captureException(ex);
     }
   }, sessionOptions);
 };

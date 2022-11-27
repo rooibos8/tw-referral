@@ -135,7 +135,7 @@ const updateApply = withApiErrorHandler<UpdateApplyApiResponse>(
           applierId,
           applier?.data.status as ApplyStatus
         );
-        throw { status: 400, statusText: 'something wrong.' };
+        throw { status: 400, statusText: 'something happened' };
       }
     }
 
@@ -147,19 +147,15 @@ export default withIronSessionApiRoute(function (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  try {
-    const { method } = req;
-    if (method === 'GET') {
-      getApply(req, res);
-    } else if (method === 'POST') {
-      applyForm(req, res);
-    } else if (method === 'PUT') {
-      updateApply(req, res);
-    } else {
-      res.status(404).send({ message: 'endpoint not found.' });
-    }
-  } catch (err) {
-    res.status(500).send('something happen.');
+  const { method } = req;
+  if (method === 'GET') {
+    getApply(req, res);
+  } else if (method === 'POST') {
+    applyForm(req, res);
+  } else if (method === 'PUT') {
+    updateApply(req, res);
+  } else {
+    res.status(404).send({ message: 'endpoint not found.' });
   }
 },
 sessionOptions);

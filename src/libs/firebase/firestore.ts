@@ -324,9 +324,9 @@ export const createListFormApplier = async (
   const list = await findListFormById(null, listFormId);
 
   if (typeof list === 'undefined') {
-    throw 'list does not exists';
+    throw new Error('list does not exists');
   } else if (typeof userData === 'undefined') {
-    throw 'user does not exists';
+    throw new Error('user does not exists');
   }
 
   await _setDoc<ListFormApplierDoc>(
@@ -382,7 +382,7 @@ export const updateApplyStatus = async (
       `users/${user.id}/list_forms/${formId}/list_form_appliers/${applierId}`
     );
     if (!applier) {
-      throw 'this applier does not exists!';
+      throw new Error('this applier does not exists!');
     }
 
     await transaction.set<ListFormApplierDoc>(

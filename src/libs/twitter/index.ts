@@ -51,7 +51,13 @@ const _get = async <R>(
 
     const data: R = await res.json();
     if (!res.ok) {
-      throw { status: res.status, statusText: res.statusText, data };
+      throw new Error('twitter api error', {
+        cause: {
+          status: res.status,
+          statusText: res.statusText,
+          data,
+        },
+      });
     }
     return data;
   } catch (err) {

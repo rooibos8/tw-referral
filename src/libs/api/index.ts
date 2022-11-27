@@ -35,8 +35,7 @@ const _fetch = async <T>(
 
     const data = await res.json();
     if (!res.ok) {
-      console.error(data);
-      throw new Error('something wrong.');
+      throw new Error('something happened.', { cause: res });
     }
     return data;
   } catch (err) {

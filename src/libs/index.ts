@@ -36,27 +36,27 @@ export const withApiErrorHandler = <T>(
       try {
         await handler(req, res);
       } catch (err) {
-        const _e = err as AppError;
+        const _e = err as AppError & Error;
         if (process.env.NODE_ENV !== 'production') {
           console.log('api has an error');
           console.log(_e);
         } else {
           captureException(err);
         }
-        if (_e.status === 401) {
-          req.session.destroy();
-          res.redirect(401, '/');
-        } else if (_e.status === 429) {
-          res.redirect(429, '/429');
-        }
+
         if (_e.status && _e.statusText) {
-          if (_e.status === 404) {
+          if (_e.status === 401) {
+            req.session.destroy();
+            res.redirect(401, '/');
+          } else if (_e.status === 429) {
+            res.redirect(429, '/429');
+          } else if (_e.status === 404) {
             res.status(404).send({ errorMessage: _e.statusText });
           } else {
             res.status(500).send({ errorMessage: _e.statusText });
           }
         } else {
-          res.status(500).send({ errorMessage: 'something happen.' });
+          res.status(500).send({ errorMessage: 'something happened.' });
         }
       }
     }
