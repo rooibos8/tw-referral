@@ -1,37 +1,45 @@
+import { useTranslation } from 'next-i18next';
 import React from 'react';
 
-import { TwitterIcon, Button } from '@/components';
-import styles from '@/styles/index.module.scss';
+import { TwitterIcon, Button, Text } from '@/components';
 
-type User = {
-  name: string;
-};
+import * as api from '@/libs/api';
+import { withSessionSsr } from '@/libs/session/client';
+import styles from '@/styles/pages/top.module.scss';
+// @ts-ignore
+export const getServerSideProps = withSessionSsr();
 
-const Page: React.FC = () => {
-  const [user, setUser] = React.useState<User>();
+export default function Top() {
+  const { t } = useTranslation();
+  const onClick = async () => {
+    const res = await api.getAuthLink('/mypage');
+    if (res) {
+      location.href = res.authUrl;
+    }
+  };
 
   return (
     <article>
-      <section>
-        <h1>
-          Twitterユーザーの年齢判定を
-          <br />
-          共有するツール
-        </h1>
-        <p>
-          成人向けコンテンツをTwitterでリスト公開したい時アカウントの年齢確認をするのが大変なのでツールを作りました！
-        </p>
-        <p>
-          １人で確認するのが大変ならみんなで結果をシェアすればいいじゃない！ ――
-          制作
-        </p>
-        <Button className={styles['login-btn']}>
-          <TwitterIcon />
-          アカウントでログイン
+      <section className={styles.section}>
+        <h1>{t('serviceTitle')}</h1>
+        <div className={styles.message}>
+          {t('serviceDescription')
+            .split('\n')
+            .map((text) => (
+              <Text key={text}>{text}</Text>
+            ))}
+          <Text size="sm">
+            <i>{t('serviceDescription2')}</i>
+          </Text>
+        </div>
+        <Button
+          icon={<TwitterIcon className={''} />}
+          className={styles['login-btn']}
+          onClick={onClick}
+        >
+          {t('login')}
         </Button>
       </section>
     </article>
   );
-};
-
-export default Page;
+}

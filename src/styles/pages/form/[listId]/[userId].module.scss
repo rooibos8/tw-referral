@@ -1,0 +1,157 @@
+@import '@/styles/variables.module.scss';
+
+.container {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.twitter-profile-container {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  overflow: scroll;
+  height: 100%;
+}
+
+.twitter-user-name {
+  display: flex;
+  justify-content: space-between;
+}
+
+.twitter-description {
+  margin: 16px 0;
+}
+
+.twitter-public-metrics {
+  display: flex;
+  gap: 1em;
+  justify-content: flex-start;
+}
+
+.judge-history-grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 4px 18px;
+  justify-content: center;
+  width: 100%;
+  &:nth-of-type(even) {
+    text-align: left;
+  }
+  &:nth-of-type(odd) {
+    text-align: right;
+  }
+}
+
+.judge-history-grid-header {
+  text-align: right;
+}
+
+.view-other-users-judge {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.judge-history-other-users {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-with-icon {
+  display: flex;
+  align-items: center;
+  svg {
+    margin-right: 4px;
+  }
+}
+
+.icon-done {
+  color: $primary-color;
+}
+
+.icon-deny {
+  color: $warn-color;
+}
+
+.timeline {
+  overflow: scroll;
+  border-radius: 12px;
+  flex: 1;
+}
+
+.timeline-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.judge-button-group {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+}
+
+.modal {
+  overflow: hidden;
+}
+
+.modal-root {
+  background-color: $base-theme-color;
+  color: $default-color;
+  padding: 16px 0;
+}
+
+.modal-header {
+  margin-right: 0;
+}
+
+.modal-body {
+  display: grid;
+  gap: 23px;
+  grid-template-rows: 1.3em 1fr 1.3em 1fr;
+  height: calc(100% - 44px);
+  overflow: scroll;
+}
+
+.modal-close {
+  color: $default-color;
+}
+
+.modal-list {
+  overflow-y: scroll;
+}
+
+.modal-list-item {
+  background-color: $default-color;
+  padding: 12px;
+  color: $black-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-text-with-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.modal-icon {
+  height: 1.5em;
+  height: 1.5em;
+  margin-right: 4px;
+}
+
+.modal-icon-allow {
+  color: $primary-color;
+  margin-right: 6px;
+}
+
+.modal-icon-deny {
+  color: $warn-color;
+}

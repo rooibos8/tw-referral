@@ -1,0 +1,52 @@
+@import '@/styles/variables.module.scss';
+
+.contents {
+  width: 100%;
+  position: relative;
+}
+
+.list-container {
+  background-color: $default-color;
+  color: $black-color;
+  padding: 12px;
+  &:active {
+    transform: scale(1.1);
+    transition: 0.1s;
+  }
+}
+
+.action-text {
+  width: 40px;
+  display: inline-block;
+}
+
+.accept {
+  background-color: $primary-color;
+  color: $default-color;
+  width: 90px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.deny {
+  background-color: $warn-color;
+  color: $default-color;
+  width: 90px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.rate {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 60%;
+}

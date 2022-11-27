@@ -1,12 +1,26 @@
 import '@/styles/globals.scss';
+import 'react-loading-skeleton/dist/skeleton.css';
+import '/node_modules/flag-icons/css/flag-icons.min.css';
+import '/node_modules/spinkit/spinkit.min.css';
+import { appWithTranslation } from 'next-i18next';
+import { RecoilRoot } from 'recoil';
+
 import type { AppProps } from 'next/app';
 
-import Layout from '@/components/Layout';
+import { ErrorBoundary } from '@/components';
+import Layout from '@/components/provider/Layout';
 
-export default function App({ Component, pageProps }: AppProps) {
+export default appWithTranslation(function App({
+  Component,
+  pageProps,
+}: AppProps) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <ErrorBoundary>
+      <RecoilRoot>
+        <Layout session={pageProps.session}>
+          <Component {...pageProps} />
+        </Layout>
+      </RecoilRoot>
+    </ErrorBoundary>
   );
-}
+});

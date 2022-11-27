@@ -1,0 +1,33 @@
+@import '@/styles/variables.module.scss';
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-profile-name {
+  gap: 4px;
+  display: grid;
+}
+
+.icon {
+  width: 0.7em !important;
+  height: 0.7em !important;
+}
+
+.user-profile-ai {
+  display: flex;
+  align-items: center;
+  gap: 0 8px;
+}
+
+.ai-verified {
+  display: flex;
+  align-items: center;
+  color: $primary-color;
+  font-size: 0.7em;
+}
+.ai-verified-icon {
+  margin-right: 4px;
+}

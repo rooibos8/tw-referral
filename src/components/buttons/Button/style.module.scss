@@ -1,0 +1,56 @@
+@import '@/styles/variables.module.scss';
+
+.btn {
+  outline: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  &:active {
+    transform: scale(1.02);
+    transition: 0.1s;
+  }
+}
+
+.default {
+  background-color: $default-color;
+  color: $black-color;
+}
+
+.primary {
+  background-color: $primary-color;
+  color: $default-color;
+}
+
+.warn {
+  background-color: $default-color;
+  color: $warn-color;
+}
+
+.error {
+  background-color: $warn-color;
+  color: $default-color;
+}
+
+.md {
+  font-size: 1em;
+  padding: 1.2em 1.5em;
+}
+
+.xm {
+  font-size: 1.2em;
+  font-weight: 600;
+  padding: 1.2em 2.5em;
+}
+
+.lg {
+  font-size: 1.5em;
+  padding: 1.1em 2.1em;
+}
+
+.icon {
+  margin-right: 4px;
+}

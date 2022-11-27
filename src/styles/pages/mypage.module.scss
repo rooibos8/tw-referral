@@ -1,0 +1,36 @@
+@import '@/styles/variables.module.scss';
+
+.container {
+  display: grid;
+  gap: 20px;
+  height: 100%;
+  // grid-template-rows: 1.3em 1fr 1.3em 1fr;
+  grid-template-rows: 1.3em 1fr;
+}
+
+.list {
+  overflow: scroll;
+}
+
+.list-item {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 40px 24px;
+  height: 100%;
+}
+
+.list-item-enter {
+  opacity: 0;
+}
+.list-item-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.list-badge-root {
+  background-color: $base-theme-color;
+}
+
+.list-badge-label {
+  color: $default-color;
+}

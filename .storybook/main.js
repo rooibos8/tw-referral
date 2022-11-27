@@ -1,3 +1,4 @@
+const { mergeConfig } = require('vite');
 const path = require('path');
 module.exports = {
   stories: [
@@ -10,17 +11,27 @@ module.exports = {
     '@storybook/addon-interactions',
   ],
   framework: {
-    name: '@storybook/nextjs',
+    name: '@storybook/react-vite',
+    // name: '@storybook/nextjs',
     options: {},
   },
   docs: {
     docsPage: true,
   },
-  webpackFinal: async (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname, '../src'),
-    };
-    return config;
+  // webpackFinal: async (config) => {
+  //   config.resolve.alias = {
+  //     ...config.resolve.alias,
+  //     '@': path.resolve(__dirname, '../src'),
+  //   };
+  //   return config;
+  // },
+  viteFinal: async (config) => {
+    return mergeConfig(config, {
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, '../src'),
+        },
+      },
+    });
   },
 };

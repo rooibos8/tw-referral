@@ -1,0 +1,31 @@
+@import '@/styles/variables.module.scss';
+
+.icon-container {
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.icon-container-jp,
+.icon-container-kr {
+  padding: 4px;
+  background-color: #fff;
+  border: 1px solid rgb(205, 205, 205);
+}
+
+.icon-container-us {
+  padding: 0;
+  height: 36px;
+  width: 36px;
+}
+
+.icon-jp,
+.icon-kr {
+  height: 26px;
+  width: 27px;
+}
+
+.icon-us {
+  height: 36px;
+  width: 48px; // 高さに対して3:4で計算
+  transform: translate(-21%, -3%);
+}
