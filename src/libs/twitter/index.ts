@@ -34,7 +34,8 @@ const PARAMS_USER_FIELDS = {
 const _get = async <R>(
   token: string,
   url: string,
-  params?: FetchParams
+  params?: FetchParams,
+  retry?: boolean
 ): Promise<R | undefined> => {
   try {
     const fullUrl = `${process.env.TWITTER_API_V2_URL}${url}${
@@ -45,15 +46,18 @@ const _get = async <R>(
         Authorization: `Bearer ${token}`,
       },
     });
+
     const data: R = await res.json();
     if (!res.ok) {
-      console.log(`'Failed getting twitter data : ${fullUrl}`);
       throw { status: res.status, statusText: res.statusText, data };
     }
     return data;
   } catch (err) {
-    console.log(JSON.stringify(err, null, 2));
-    throw { status: 500, statusText: 'something wrong.' };
+    const _e = err as { code: string };
+    if (_e?.code === 'ETIMEDOUT' && !retry) {
+      return await _get(token, url, params, true);
+    }
+    throw err;
   }
 };
 
@@ -63,10 +67,13 @@ const _post = async <R>(
   {
     params,
     body,
+    headers,
   }: {
     params?: FetchParams;
     body?: Record<string, string | number>;
-  }
+    headers?: HeadersInit;
+  },
+  retry?: boolean
 ): Promise<R> => {
   try {
     const fullUrl = `${process.env.TWITTER_API_V2_URL}${url}${
@@ -77,24 +84,21 @@ const _post = async <R>(
       headers: {
         Authorization: `Bearer ${token}`,
         ['Content-Type']: 'application/json',
+        ...headers,
       },
-      body: JSON.stringify(body),
+      ...(body ? { body: JSON.stringify(body) } : {}),
     });
     const data: R = await res.json();
     if (!res.ok) {
-      console.log(
-        `Failed creating twitter data : ${fullUrl}\nbody; ${JSON.stringify(
-          body,
-          null,
-          2
-        )}`
-      );
       throw { status: res.status, statusText: res.statusText, data };
     }
     return data;
   } catch (err) {
-    console.log(JSON.stringify(err, null, 2));
-    throw { status: 500, statusText: 'something wrong.' };
+    const _e = err as { code: string };
+    if (_e?.code === 'ETIMEDOUT' && !retry) {
+      return await _post(token, url, { params, body, headers }, true);
+    }
+    throw err;
   }
 };
 
@@ -118,40 +122,35 @@ export const getAccessToken = async (
     throw { status: 400, statusText: 'invalid token' };
   }
 
-  const auth = CryptoJS.enc.Utf8.parse(
-    `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
-  );
-  const res = await fetch(
-    `${process.env.TWITTER_API_V2_URL}/oauth2/token?${new URLSearchParams({
-      client_id: process.env.TWITTER_CLIENT_ID as string,
-      ...(code && state
-        ? {
-            // create new access token
-            code: code as string,
-            grant_type: 'authorization_code',
-            redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/login` as string,
-            code_verifier: process.env.TWITTER_CLIENT_ID as string,
-          }
-        : {
-            // refresh token
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken,
-          }),
-    })}`,
+  const data = await _post<TwitterGetAccessTokenApiResponse>(
+    '',
+    '/oauth2/token',
     {
-      method: 'POST',
+      params: {
+        client_id: process.env.TWITTER_CLIENT_ID as string,
+        ...(code && state
+          ? {
+              // create new access token
+              code: code as string,
+              grant_type: 'authorization_code',
+              redirect_uri:
+                `${process.env.NEXT_PUBLIC_BASE_URL}/login` as string,
+              code_verifier: process.env.TWITTER_CLIENT_ID as string,
+            }
+          : {
+              // refresh token
+              grant_type: 'refresh_token',
+              refresh_token: refreshToken,
+            }),
+      },
       headers: {
         ['Content-Type']: 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${CryptoJS.enc.Base64.stringify(auth)}`,
+        Authorization: `Basic ${CryptoJS.enc.Utf8.parse(
+          `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
+        ).toString(CryptoJS.enc.Base64)}`,
       },
     }
   );
-
-  const data = await res.json();
-  if (!res.ok) {
-    console.log({ status: res.status, statusText: res.statusText, ...data });
-    throw { status: 401, statusText: res.statusText, data };
-  }
 
   const {
     access_token: accessToken,
