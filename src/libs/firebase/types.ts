@@ -1,7 +1,7 @@
 import type { ListFormStatus, ApplyStatus } from '@/constants';
-import type { Timestamp } from 'firebase/firestore/lite';
+import type { Timestamp } from 'firebase-admin/firestore';
 
-type BaseProperty = {
+export type BaseProperty = {
   created_at: Timestamp;
   updated_at: Timestamp;
 };

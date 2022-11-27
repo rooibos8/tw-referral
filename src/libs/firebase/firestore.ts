@@ -1,20 +1,6 @@
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  setDoc,
-  doc,
-  getDoc,
-  runTransaction,
-  Timestamp,
-  serverTimestamp,
-  limit,
-  collectionGroup,
-  deleteDoc,
-  WhereFilterOp,
-  FieldPath,
-} from 'firebase/firestore/lite';
+import { Timestamp } from 'firebase-admin/firestore';
+
+import { useId } from 'react';
 
 import { db } from './';
 
@@ -27,91 +13,85 @@ import type {
   ListFormApplierDoc,
 } from './types';
 import type {
-  CollectionReference,
+  PartialWithFieldValue,
+  DocumentSnapshot,
+  SetOptions,
+  DocumentData,
+  QuerySnapshot,
   DocumentReference,
-  Query,
-} from 'firebase/firestore/lite';
+  FieldPath,
+  WhereFilterOp,
+} from 'firebase-admin/firestore';
 
 import { LIST_FORM_STATUS, APPLY_STATUS, ApplyStatus } from '@/constants';
 
-const _getDocs = async <D>(col: CollectionReference<D>): Promise<Array<D>> => {
-  try {
-    const docSnap = await getDocs<D>(col);
-    return docSnap.docs.map((d) => d.data());
-  } catch (e) {
-    console.error('Error finding list by id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+const _getDocs = async <D>(path: string): Promise<Array<D>> => {
+  const snap = (await db.collection(path).get()) as QuerySnapshot<D>;
+  return snap.docs.map((d) => d.data());
 };
 
-const _getDocsByQuery = async <Q, D>(
-  col: CollectionReference,
-  wheres: [string, WhereFilterOp, Array<Q> | Q]
+const _getDocsByQuery = async <D>(
+  path: string,
+  wheres: [string, WhereFilterOp, any]
 ): Promise<Array<D>> => {
-  try {
-    let result: Array<D> = [];
-    const [field, op, values] = wheres;
-    if (op === 'in' || op === 'not-in') {
-      const _values: Array<Q> = [...(values as Array<Q>)];
-      await Promise.all(
-        Array(Math.ceil(_values.length / 10)).map(async () => {
-          const _vs = _values.splice(0, 10);
-          const q = query<D>(
-            col as CollectionReference<D>,
-            where(field, op, _vs)
-          );
-          const snap = await getDocs(q);
-          result = [...result, ...snap.docs.map((d) => d.data())];
-        })
-      );
-    } else {
-      const q = query<D>(
-        col as CollectionReference<D>,
-        where(field, op, values)
-      );
-      const snap = await getDocs(q);
-      return snap.docs.map((d) => d.data());
-    }
-
-    return result;
-  } catch (e) {
-    console.error('Error finding user: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
-};
-
-const _getDoc = async <D>(
-  doc: DocumentReference<D>
-): Promise<D | undefined> => {
-  try {
-    const docSnap = await getDoc<D>(doc);
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
-};
-
-const _getDocByQuery = async <Q, D>(
-  col: CollectionReference,
-  wheres: [string | FieldPath, WhereFilterOp, Q]
-): Promise<D | undefined> => {
-  try {
-    const [field, op, values] = wheres;
-    const q = query<D>(
-      col as CollectionReference<D>,
-      where(field, op, values),
-      limit(1)
+  let result: Array<D> = [];
+  const [field, op, values] = wheres;
+  if (op === 'in' || op === 'not-in') {
+    const _values = [...values];
+    await Promise.all(
+      Array(Math.ceil(_values.length / 10)).map(async () => {
+        const _vs = _values.splice(0, 10);
+        const snap = (await db
+          .collection(path)
+          .where(field, op, _vs)
+          .get()) as QuerySnapshot<D>;
+        result = [...result, ...snap.docs.map((d) => d.data())];
+      })
     );
-    const snap = await getDocs(q);
-    for (const doc of snap.docs) {
-      return doc.data();
-    }
-  } catch (e) {
-    console.error('Error finding list by id: ', e);
-    throw 'finding specific user by twitter name has failed';
+  } else {
+    const snap = (await db
+      .collection(path)
+      .where(field, op, values)
+      .get()) as QuerySnapshot<D>;
+    return snap.docs.map((d) => d.data());
+  }
+
+  return result;
+};
+
+const _getDoc = async <D>(path: string): Promise<D | undefined> => {
+  const docSnap = (await db.doc(path).get()) as DocumentSnapshot<D>;
+  if (docSnap.exists) {
+    return docSnap.data();
+  }
+};
+
+const _getDocByQuery = async <D>(
+  path: string,
+  wheres: [string | FieldPath, WhereFilterOp, any]
+): Promise<D | undefined> => {
+  const [field, op, values] = wheres;
+  const snap = (await db
+    .collectionGroup(path)
+    .where(field, op, values)
+    .limit(1)
+    .get()) as QuerySnapshot<D>;
+  for (const doc of snap.docs) {
+    return doc.data();
+  }
+};
+
+const _setDoc = async <D>(
+  path: string,
+  value: PartialWithFieldValue<D>,
+  options?: SetOptions
+): Promise<void> => {
+  if (typeof options !== 'undefined') {
+    await db
+      .doc(path)
+      .set(value as PartialWithFieldValue<DocumentData>, options);
+  } else {
+    await db.doc(path).set(value as PartialWithFieldValue<DocumentData>);
   }
 };
 
@@ -121,42 +101,19 @@ export const updateAppSetting = async (update: {
     expires_at: Timestamp;
   };
 }): Promise<void> => {
-  try {
-    await setDoc<AppSettingsDoc>(
-      doc(
-        db,
-        'app_settings',
-        process.env.APP_SETTING_DOC_ID as string
-      ) as DocumentReference<AppSettingsDoc>,
-      update,
-      {
-        merge: true,
-      }
-    );
-  } catch (e) {
-    console.error('Error updating app settings: ', e);
-    throw 'updating settings has failed';
-  }
+  await _setDoc(
+    `app_settings/${process.env.APP_SETTING_DOC_ID as string}`,
+    update,
+    {
+      merge: true,
+    }
+  );
 };
 
 export const getAppSetting = async (): Promise<AppSettingsDoc | undefined> => {
-  try {
-    const docRef = doc(
-      db,
-      'app_settings',
-      process.env.APP_SETTING_DOC_ID as string
-    ) as DocumentReference<AppSettingsDoc>;
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      return docSnap.data();
-    } else {
-      return;
-    }
-  } catch (e) {
-    console.error('Error finding app settings: ', e);
-    throw 'finding the app settings has failed';
-  }
+  return await _getDoc<AppSettingsDoc>(
+    `app_settings/${process.env.APP_SETTING_DOC_ID as string}`
+  );
 };
 
 export const createUser = async (newUser: {
@@ -169,87 +126,52 @@ export const createUser = async (newUser: {
     can_create_form: boolean;
   };
 }): Promise<UserDoc> => {
-  try {
-    let ref: DocumentReference<UserDoc>;
-    if (typeof newUser.doc_id === 'undefined') {
-      ref = doc<UserDoc>(
-        collection(db, 'users') as CollectionReference<UserDoc>
-      );
-    } else {
-      ref = doc(db, 'users', newUser.doc_id) as DocumentReference<UserDoc>;
-    }
-
-    const user = {
-      ...newUser,
-      doc_id: typeof newUser.doc_id !== 'undefined' ? newUser.doc_id : ref.id,
-      data: {
-        ...newUser.data,
-        created_at: Timestamp.now(),
-        updated_at: Timestamp.now(),
-      },
-    };
-    await setDoc<UserDoc>(ref, user);
-    return user;
-  } catch (e) {
-    console.error('Error adding user: ', e);
-    throw 'creating a new user has failed';
+  let ref;
+  if (typeof newUser.doc_id === 'undefined') {
+    ref = db.doc('users');
+  } else {
+    ref = db.doc(`users/${newUser.doc_id}`);
   }
+  const now = new Date();
+  const user: UserDoc = {
+    ...newUser,
+    doc_id: typeof newUser.doc_id !== 'undefined' ? newUser.doc_id : ref.id,
+    data: {
+      ...newUser.data,
+      created_at: Timestamp.fromDate(now),
+      updated_at: Timestamp.fromDate(now),
+    },
+  };
+  await ref.set(user, { merge: true });
+  return user;
 };
 
 export const findUserById = async (
   userId: string
 ): Promise<UserDoc | undefined> => {
-  try {
-    const docSnap = await getDoc<UserDoc>(
-      doc(db, 'users', userId) as DocumentReference<UserDoc>
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-  } catch (e) {
-    console.error('Error finding list by id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDoc(`users/${userId}`);
 };
 
 export const findUserByIds = async (
   userIds: Array<string>
 ): Promise<Array<UserDoc> | undefined> => {
-  try {
-    return await _getDocsByQuery<string, UserDoc>(collection(db, 'users'), [
-      'doc_id',
-      'in',
-      userIds,
-    ]);
-  } catch (e) {
-    console.error('Error finding list by id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDocsByQuery('users', ['doc_id', 'in', userIds]);
 };
 
 export const findUserByTwitterId = async (
   twitterId: string
 ): Promise<UserDoc | undefined> => {
-  try {
-    const q = query<UserDoc>(
-      collection(db, 'users') as CollectionReference<UserDoc>,
-      where('twitter_id', '==', twitterId),
-      limit(1)
-    );
-    const docsSnap = await getDocs(q);
-    for (const doc of docsSnap.docs) {
-      return doc.data();
-    }
-  } catch (e) {
-    console.error('Error finding user: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDocByQuery<UserDoc>('users', [
+    'twitter_id',
+    '==',
+    twitterId,
+  ]);
 };
 
 export const findUserByTwitterIds = async (
   twitterIds: Array<string>
 ): Promise<Array<UserDoc>> => {
-  return await _getDocsByQuery<string, UserDoc>(collection(db, 'users'), [
+  return await _getDocsByQuery<UserDoc>('users', [
     'twitter_id',
     'in',
     twitterIds,
@@ -267,28 +189,14 @@ export const createListForm = async (
   },
   listMembers: Array<TwitterUserInfo>
 ): Promise<string> => {
-  const newListFormId = await runTransaction(db, async (transaction) => {
+  const newListFormId = await db.runTransaction(async (transaction) => {
     // フォームの作成
     const existsList = await findFormByTwitterListId(user.id, list.id);
     const newListFormDocRef =
       typeof existsList === 'undefined'
-        ? doc<ListFormDoc>(
-            collection(
-              db,
-              'users',
-              user.id,
-              'list_forms'
-            ) as CollectionReference<ListFormDoc>
-          )
-        : doc<ListFormDoc>(
-            collection(
-              db,
-              'users',
-              user.id,
-              'list_forms'
-            ) as CollectionReference<ListFormDoc>,
-            existsList.doc_id
-          );
+        ? db.doc(`users/${user.id}/list_forms`)
+        : db.doc(`users/${user.id}/list_forms/${existsList.doc_id}`);
+    const now = new Date();
     await transaction.set(newListFormDocRef, {
       doc_id: newListFormDocRef.id,
       twitter_list_id: list.id,
@@ -302,8 +210,8 @@ export const createListForm = async (
           list_name: list.name,
         },
         status: LIST_FORM_STATUS.OPEN,
-        updated_at: serverTimestamp(),
-        created_at: existsList?.data.created_at ?? serverTimestamp(),
+        updated_at: Timestamp.fromDate(now),
+        created_at: existsList?.data.created_at ?? Timestamp.fromDate(now),
       },
     });
 
@@ -336,9 +244,10 @@ export const createListForm = async (
           ) {
             const userRef = (
               !isMemberExists
-                ? doc(collection(db, 'users'))
-                : doc(db, 'users', (memberExists as UserDoc).doc_id)
+                ? db.doc('users')
+                : db.doc(`users/${(memberExists as UserDoc).doc_id}`)
             ) as DocumentReference<UserDoc>;
+            const now = new Date();
             transaction.set(userRef, {
               doc_id: memberExists?.doc_id ?? userRef.id,
               twitter_id: member.id,
@@ -348,8 +257,9 @@ export const createListForm = async (
                 can_create_form: false,
                 ai_guessed_age_gt: memberExists?.data.ai_guessed_age_gt ?? 19,
                 ai_guessed_age_ls: memberExists?.data.ai_guessed_age_ls ?? null,
-                created_at: memberExists?.data.created_at ?? serverTimestamp(),
-                updated_at: serverTimestamp(),
+                created_at:
+                  memberExists?.data.created_at ?? Timestamp.fromDate(now),
+                updated_at: Timestamp.fromDate(now),
               },
             });
             memberUserId = userRef.id;
@@ -360,20 +270,17 @@ export const createListForm = async (
           /**
            * 許可履歴を作る。存在していても更新しておく。
            */
-          const newJudgeHistoryRef = doc(
-            db,
-            'users',
-            memberUserId,
-            'allowed_by',
-            user.id
+          const newJudgeHistoryRef = db.doc(
+            `users/${memberUserId}/allowed_by/${user.id}`
           ) as DocumentReference<JudgeHistoryDoc>;
+          const now = new Date();
           await transaction.set(
             newJudgeHistoryRef,
             {
               doc_id: newJudgeHistoryRef.id,
               data: {
                 twitter: user.twitter,
-                judged_at: serverTimestamp(),
+                judged_at: Timestamp.fromDate(now),
               },
             },
             { merge: true }
@@ -392,40 +299,16 @@ export const findListFormById = async (
   listFormId: string
 ): Promise<ListFormDoc | undefined> => {
   if (userId !== null) {
-    return await _getDoc<ListFormDoc>(
-      doc(
-        db,
-        'users',
-        userId,
-        'list_forms',
-        listFormId
-      ) as DocumentReference<ListFormDoc>
-    );
+    return await _getDoc(`users/${userId}/list_forms/${listFormId}`);
   } else {
-    return await _getDocByQuery<string, ListFormDoc>(
-      collectionGroup(db, 'list_forms') as CollectionReference<ListFormDoc>,
-      ['doc_id', '==', listFormId]
-    );
+    return await _getDocByQuery(`list_forms`, ['doc_id', '==', listFormId]);
   }
 };
 
 export const findFormsByUserId = async (
   userId: string
 ): Promise<Array<ListFormDoc>> => {
-  try {
-    const docSnap = await getDocs<ListFormDoc>(
-      collection(
-        db,
-        'users',
-        userId,
-        'list_forms'
-      ) as CollectionReference<ListFormDoc>
-    );
-    return docSnap.docs.map((d) => d.data());
-  } catch (e) {
-    console.error('Error finding list by id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDocs(`users/${userId}/list_forms`);
 };
 
 export const createListFormApplier = async (
@@ -445,36 +328,30 @@ export const createListFormApplier = async (
     throw 'user does not exists';
   }
 
-  const newApplierDocRef = doc(
-    db,
-    'users',
-    list.data.user.doc_id,
-    'list_forms',
-    listFormId,
-    'list_form_appliers',
-    user.id
-  ) as DocumentReference<ListFormApplierDoc>;
-  await setDoc(newApplierDocRef, {
-    doc_id: newApplierDocRef.id,
-    user_doc_id: newApplierDocRef.id,
-    data: {
-      user: {
-        doc_id: user.id,
-        twitter: user.twitter,
-        can_create_form: false,
-        ai_guessed_age_gt: userData.data.ai_guessed_age_gt,
-        ai_guessed_age_ls: userData.data.ai_guessed_age_ls,
+  await _setDoc<ListFormApplierDoc>(
+    `users/${list.data.user.doc_id}/list_forms/${listFormId}/list_form_appliers/${user.id}`,
+    {
+      doc_id: user.id,
+      user_doc_id: user.id,
+      data: {
+        user: {
+          doc_id: user.id,
+          twitter: user.twitter,
+          can_create_form: false,
+          ai_guessed_age_gt: userData.data.ai_guessed_age_gt,
+          ai_guessed_age_ls: userData.data.ai_guessed_age_ls,
+        },
+        owner: {
+          user_doc_id: list.data.user.doc_id,
+          list_doc_id: list.doc_id,
+          twitter: list.data.user.twitter,
+        },
+        status: APPLY_STATUS.STAY,
+        created_at: Timestamp.now(),
+        updated_at: Timestamp.now(),
       },
-      owner: {
-        user_doc_id: list.data.user.doc_id,
-        list_doc_id: list.doc_id,
-        twitter: list.data.user.twitter,
-      },
-      status: APPLY_STATUS.STAY,
-      created_at: Timestamp.now(),
-      updated_at: Timestamp.now(),
-    },
-  });
+    }
+  );
 
   return list;
 };
@@ -482,12 +359,11 @@ export const createListFormApplier = async (
 export const findAppliedFromByUserId = async (
   userId: string
 ): Promise<Array<ListFormApplierDoc>> => {
-  const q = query<ListFormApplierDoc>(
-    collectionGroup(db, 'list_form_appliers') as Query<ListFormApplierDoc>,
-    where('user_doc_id', '==', userId)
-  );
-  const docsSnap = await getDocs(q);
-  return docsSnap.docs.map((d) => d.data());
+  const snap = (await db
+    .collectionGroup('list_form_appliers')
+    .where('user_doc_id', '==', userId)
+    .get()) as QuerySnapshot<ListFormApplierDoc>;
+  return snap.docs.map((d) => d.data());
 };
 
 export const updateApplyStatus = async (
@@ -499,23 +375,19 @@ export const updateApplyStatus = async (
   applierId: string,
   status: ApplyStatus
 ) => {
-  await runTransaction(db, async (transaction) => {
+  await db.runTransaction(async (transaction) => {
     // update applys status
-    const applierRef = doc(
-      db,
-      'users',
-      user.id,
-      'list_forms',
-      formId,
-      'list_form_appliers',
-      applierId
-    ) as DocumentReference<ListFormApplierDoc>;
-    const applierSnap = await getDoc(applierRef);
-    if (!applierSnap.exists()) {
+    const applier = _getDoc(
+      `users/${user.id}/list_forms/${formId}/list_form_appliers/${applierId}`
+    );
+    if (!applier) {
       throw 'this applier does not exists!';
     }
-    await transaction.set(
-      applierRef,
+
+    await transaction.set<ListFormApplierDoc>(
+      db.doc(
+        `users/${user.id}/list_forms/${formId}/list_form_appliers/${applierId}`
+      ) as DocumentReference<ListFormApplierDoc>,
       {
         data: {
           status: status,
@@ -528,20 +400,18 @@ export const updateApplyStatus = async (
     /**
      * 許可履歴を作る。存在していても更新しておく。
      */
-    const newJudgeHistoryRef = doc(
-      db,
-      'users',
-      applierId,
-      status === APPLY_STATUS.ALLOW ? 'allowed_by' : 'denied_by',
-      user.id
+    const newRef = db.doc(
+      `users/${applierId}/${
+        status === APPLY_STATUS.ALLOW ? 'allowed_by' : 'denied_by'
+      }/${user.id}`
     ) as DocumentReference<JudgeHistoryDoc>;
-    await transaction.set(
-      newJudgeHistoryRef,
+    await transaction.set<JudgeHistoryDoc>(
+      newRef,
       {
-        doc_id: newJudgeHistoryRef.id,
+        doc_id: newRef.id,
         data: {
           twitter: user.twitter,
-          judged_at: serverTimestamp(),
+          judged_at: Timestamp.fromDate(new Date()),
         },
       },
       { merge: true }
@@ -554,14 +424,7 @@ export const findAppliersByFormId = async (
   formId: string
 ): Promise<Array<ListFormApplierDoc>> => {
   return await _getDocs<ListFormApplierDoc>(
-    collection(
-      db,
-      'users',
-      userId,
-      'list_forms',
-      formId,
-      'list_form_appliers'
-    ) as CollectionReference<ListFormApplierDoc>
+    `users/${userId}/list_forms/${formId}/list_form_appliers`
   );
 };
 
@@ -571,15 +434,7 @@ export const findApplierByApplierId = async (
   applierId: string
 ): Promise<ListFormApplierDoc | undefined> => {
   return await _getDoc<ListFormApplierDoc>(
-    doc(
-      db,
-      'users',
-      userId,
-      'list_forms',
-      formId,
-      'list_form_appliers',
-      applierId
-    ) as DocumentReference<ListFormApplierDoc>
+    `users/${userId}/list_forms/${formId}/list_form_appliers/${applierId}`
   );
 };
 
@@ -587,148 +442,63 @@ export const findFormByTwitterListId = async (
   userId: string,
   twitterListId: string
 ): Promise<ListFormDoc | undefined> => {
-  try {
-    const q = query<ListFormDoc>(
-      collection(
-        db,
-        'users',
-        userId,
-        'list_forms'
-      ) as CollectionReference<ListFormDoc>,
-      where('twitter_list_id', '==', twitterListId),
-      limit(1)
-    );
-    const docsSnap = await getDocs(q);
-    for (const doc of docsSnap.docs) {
-      return doc.data();
-    }
-  } catch (e) {
-    console.error('Error finding form by twitter list id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDocByQuery<ListFormDoc>(`users/${userId}/list_forms`, [
+    'twitter_list_id',
+    '==',
+    twitterListId,
+  ]);
 };
 
 export const findFormsByApplierId = async (
   applierId: string
 ): Promise<Array<ListFormApplierDoc> | undefined> => {
-  const lists = await _getDocsByQuery<string, ListFormApplierDoc>(
-    collectionGroup(
-      db,
-      'list_form_appliers'
-    ) as CollectionReference<ListFormApplierDoc>,
-    ['doc_id', '==', applierId]
-  );
-  return lists;
+  return await _getDocsByQuery<ListFormApplierDoc>('list_form_appliers', [
+    'doc_id',
+    '==',
+    applierId,
+  ]);
 };
 
 export const findUserAllowedHistoryByJudgedUserId = async (
   userId: string,
   allowedByUserId: string
 ): Promise<JudgeHistoryDoc | undefined> => {
-  try {
-    const docSnap = await getDoc<JudgeHistoryDoc>(
-      doc(
-        db,
-        'users',
-        userId,
-        'allowed_by',
-        allowedByUserId
-      ) as DocumentReference<JudgeHistoryDoc>
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDoc<JudgeHistoryDoc>(
+    `users/${userId}/allowed_by/${allowedByUserId}`
+  );
 };
 
 export const findUserDeniedHistoryByJudgedUserId = async (
   userId: string,
   deniedByUserId: string
 ): Promise<JudgeHistoryDoc | undefined> => {
-  try {
-    const docSnap = await getDoc<JudgeHistoryDoc>(
-      doc(
-        db,
-        'users',
-        userId,
-        'denied_by',
-        deniedByUserId
-      ) as DocumentReference<JudgeHistoryDoc>
-    );
-    if (docSnap.exists()) {
-      return docSnap.data();
-    }
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return _getDoc<JudgeHistoryDoc>(
+    `users/${userId}/denied_by/${deniedByUserId}`
+  );
 };
 
 export const findUserAllowedHistoryByUserId = async (
   userId: string
 ): Promise<Array<JudgeHistoryDoc>> => {
-  try {
-    const docsSnap = await getDocs<JudgeHistoryDoc>(
-      collection(
-        db,
-        'users',
-        userId,
-        'allowed_by'
-      ) as CollectionReference<JudgeHistoryDoc>
-    );
-    return docsSnap.docs.map((d) => d.data());
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDocs<JudgeHistoryDoc>(`users/${useId}/allowed_by`);
 };
 
 export const findUserDeniedHistoryByUserId = async (
   userId: string
 ): Promise<Array<JudgeHistoryDoc>> => {
-  try {
-    const docsSnap = await getDocs<JudgeHistoryDoc>(
-      collection(
-        db,
-        'users',
-        userId,
-        'denied_by'
-      ) as CollectionReference<JudgeHistoryDoc>
-    );
-    return docsSnap.docs.map((d) => d.data());
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await _getDocs<JudgeHistoryDoc>(`users/${userId}/denied_by`);
 };
 
 export const deleteUserAllowedHistoryByUserId = async (
   userId: string,
   judgedByID: string
 ) => {
-  try {
-    await deleteDoc(
-      doc(db, 'user_judge_history', userId, 'allowed_by', judgedByID)
-    );
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await db.doc(`user/${userId}/allowed_by/${judgedByID}`).delete();
 };
 
 export const deleteUserDeniedHistoryByUserId = async (
   userId: string,
   judgedByID: string
 ) => {
-  try {
-    await deleteDoc(
-      doc(db, 'user_judge_history', userId, 'denied_by', judgedByID)
-    );
-  } catch (e) {
-    console.error('Error finding UserJudgedHistory by judged user id: ', e);
-    throw 'finding specific user by twitter name has failed';
-  }
+  return await db.doc(`user/${userId}/denied_by/${judgedByID}`).delete();
 };
