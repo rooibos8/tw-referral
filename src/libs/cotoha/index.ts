@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { Timestamp } from 'firebase/firestore/lite';
+import { Timestamp } from 'firebase-admin/firestore';
 
 import type {
   CotohaGetAccessTokenApiResponse,
