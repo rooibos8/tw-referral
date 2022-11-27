@@ -1,4 +1,5 @@
 import { useTranslation } from 'next-i18next';
+import Head from 'next/head';
 import React, { useEffect } from 'react';
 
 import { Loading, Title, UserIcon } from '@/components';
@@ -138,6 +139,15 @@ export default function Apply({
 
   return (
     <div>
+      <Head>
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@rooibos_8" />
+        <meta name="twitter:title" content="Apply to join my list" />
+        <meta
+          name="twitter:image"
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/twitter_card.jpg`}
+        />
+      </Head>
       <div className={styles.container}>
         {notFound ? (
           <div className={styles['main-message']}>
