@@ -145,7 +145,7 @@ export default function Apply({
         <meta name="twitter:title" content="Apply to join my list" />
         <meta
           name="twitter:image"
-          content={`${process.env.NEXT_PUBLIC_BASE_URL}/twitter_card.jpg`}
+          content={`${process.env.NEXT_PUBLIC_BASE_URL}/twitter_card.png`}
         />
       </Head>
       <div className={styles.container}>
