@@ -15,9 +15,14 @@
   height: 100%;
 }
 
+.twitter-profile-joined-date {
+  white-space: nowrap;
+}
+
 .twitter-user-name {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .twitter-description {

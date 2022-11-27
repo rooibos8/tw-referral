@@ -103,7 +103,7 @@ export default function New() {
                 name={applier.twitter?.name ?? ''}
                 username={applier.twitter?.username ?? ''}
               />
-              <Text size="sm">
+              <Text size="sm" className={styles['twitter-profile-joined-date']}>
                 {t('joined')}
                 {applier?.twitter?.created_at
                   ? new Date(applier?.twitter?.created_at).toLocaleDateString()
