@@ -65,19 +65,25 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
           };
           await Promise.all([
             // allowed回数の取得
-            (async () => {
-              const allowed = await firestoreApi.findUserAllowedHistoryByUserId(
-                applier.user_doc_id
-              );
-              data.user.allowed = allowed.length;
-            })(),
+            alreadyAllowed
+              ? null
+              : (async () => {
+                  const allowed =
+                    await firestoreApi.findUserAllowedHistoryByUserId(
+                      applier.user_doc_id
+                    );
+                  data.user.allowed = allowed.length;
+                })(),
             // denied回数の取得
-            (async () => {
-              const denied = await firestoreApi.findUserDeniedHistoryByUserId(
-                applier.user_doc_id
-              );
-              data.user.denied = denied.length;
-            })(),
+            alreadyAllowed
+              ? null
+              : (async () => {
+                  const denied =
+                    await firestoreApi.findUserDeniedHistoryByUserId(
+                      applier.user_doc_id
+                    );
+                  data.user.denied = denied.length;
+                })(),
             (async () => {
               if (alreadyAllowed) {
                 // リストにすでに存在する人はALLOWに更新
@@ -96,7 +102,9 @@ const getAppliers = withApiErrorHandler<GetAppliersApiResponse>(
               }
             })(),
           ]);
-          resData.data.push(data);
+          if (!alreadyAllowed) {
+            resData.data.push(data);
+          }
         })
       );
     }

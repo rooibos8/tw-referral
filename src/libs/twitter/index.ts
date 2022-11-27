@@ -1,3 +1,5 @@
+import { url } from 'inspector';
+
 import * as CryptoJS from 'crypto-js';
 
 import type {
@@ -53,6 +55,10 @@ const _get = async <R>(
     }
     return data;
   } catch (err) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('!!!!!twitter api !!!!!');
+      console.log(err);
+    }
     const _e = err as { code: string };
     if (_e?.code === 'ETIMEDOUT' && !retry) {
       return await _get(token, url, params, true);
@@ -339,7 +345,7 @@ export const findUser = async (
 ): Promise<TwitterProfile | undefined> => {
   const res = await _get<TwitterGetUserApiResponse>(token, `/users/${tw_id}`, {
     'user.fields':
-      'created_at,description,id,name,profile_image_url,protected,public_metrics,username,verified,url',
+      'created_at,description,id,name,profile_image_url,protected,public_metrics,username,verified',
   });
   return res?.data;
 };

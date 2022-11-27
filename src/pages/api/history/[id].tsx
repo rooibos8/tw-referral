@@ -5,7 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { firestoreApi, withApiErrorHandler } from '@/libs';
 
-import { JudgeHistoryDoc } from '@/libs/firebase';
+import { JudgeHistory, JudgeHistoryDoc } from '@/libs/firebase';
 import { sessionOptions } from '@/libs/session';
 
 const getHistory = withApiErrorHandler<GetJudgeHistoryApiResponse>(
@@ -18,8 +18,8 @@ const getHistory = withApiErrorHandler<GetJudgeHistoryApiResponse>(
     }
 
     const history: {
-      allowed: Array<JudgeHistoryDoc>;
-      denied: Array<JudgeHistoryDoc>;
+      allowed: Array<JudgeHistory>;
+      denied: Array<JudgeHistory>;
     } = { allowed: [], denied: [] };
     await Promise.all([
       firestoreApi

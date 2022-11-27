@@ -14,7 +14,7 @@ import type { UiState } from '@/store';
 import { Button, UserProfile, Text, Loading } from '@/components';
 import { GetTwitterProfileApiResponse } from '@/constants';
 import * as api from '@/libs/api';
-import { JudgeHistoryDoc, UserDoc } from '@/libs/firebase';
+import { JudgeHistory, UserDoc } from '@/libs/firebase';
 import { withSessionSsr } from '@/libs/session/client';
 import { TwitterProfile } from '@/libs/twitter';
 
@@ -31,14 +31,10 @@ export default function New() {
   const [opened, setOpened] = useState<boolean>(false);
   const [selected, setSelected] = useState<GetTwitterProfileApiResponse>();
   const [applier, setApplier] = useState<
-    UserDoc & { twitter?: TwitterProfile }
+    UserDoc & { twitter: TwitterProfile }
   >();
-  const [allowedHistory, setAllowedHistory] = useState<Array<JudgeHistoryDoc>>(
-    []
-  );
-  const [deniedHistory, setDeniedHistory] = useState<Array<JudgeHistoryDoc>>(
-    []
-  );
+  const [allowedHistory, setAllowedHistory] = useState<Array<JudgeHistory>>([]);
+  const [deniedHistory, setDeniedHistory] = useState<Array<JudgeHistory>>([]);
   const [judge, setJudge] = useState<{ allowed: number; denied: number }>({
     allowed: 0,
     denied: 0,
@@ -51,7 +47,6 @@ export default function New() {
     (async () => {
       setUi({ isLoading: true });
       const res = await api.getTwitterProfile(userId);
-      console.log(JSON.stringify(res, null, 2));
       if (res) {
         let { twitter, ...data } = res;
         setApplier({ ...data, twitter });
@@ -85,15 +80,15 @@ export default function New() {
   const handleClickAllow = async () => {
     setUi({ isLoading: true });
     await api.allowApply({ listId, applierId: userId });
-    setUi({ isLoading: false });
     router.push(`/form/${listId}`);
+    setUi({ isLoading: false });
   };
 
   const handleClickDeny = async () => {
     setUi({ isLoading: true });
     await api.denyApply({ listId, applierId: userId });
-    setUi({ isLoading: false });
     router.push(`/form/${listId}`);
+    setUi({ isLoading: false });
   };
 
   return (
@@ -103,10 +98,10 @@ export default function New() {
           <div>
             <div className={styles['twitter-user-name']}>
               <UserProfile
-                href={applier?.twitter?.url ?? ''}
-                profileImageUrl={applier?.twitter?.profile_image_url ?? ''}
-                name={applier?.twitter?.name ?? ''}
-                username={applier?.twitter?.username ?? ''}
+                href={`https://twitter.com/${applier.twitter?.username}`}
+                profileImageUrl={applier.twitter?.profile_image_url ?? ''}
+                name={applier.twitter?.name ?? ''}
+                username={applier.twitter?.username ?? ''}
               />
               <Text size="sm">
                 {t('joined')}
@@ -207,8 +202,10 @@ export default function New() {
         opened={opened}
         onClose={() => setOpened(false)}
         classNames={{
+          root: styles['modal'],
           modal: styles['modal-root'],
           body: styles['modal-body'],
+          header: styles['modal-header'],
           close: styles['modal-close'],
         }}
         fullScreen
@@ -228,14 +225,7 @@ export default function New() {
                 name={h.data.twitter.name}
                 username={h.data.twitter.username}
               />
-              <Text>
-                {new Timestamp(
-                  h.data.judged_at.seconds,
-                  h.data.judged_at.nanoseconds
-                )
-                  .toDate()
-                  .toLocaleDateString()}
-              </Text>
+              <Text>{new Date(h.data.judged_at).toLocaleDateString()}</Text>
             </div>
           ))}
         </div>
@@ -253,14 +243,7 @@ export default function New() {
                 name={h.data.twitter.name}
                 username={h.data.twitter.username}
               />
-              <Text>
-                {new Timestamp(
-                  h.data.judged_at.seconds,
-                  h.data.judged_at.nanoseconds
-                )
-                  .toDate()
-                  .toLocaleDateString()}
-              </Text>
+              <Text>{new Date(h.data.judged_at).toLocaleDateString()}</Text>
             </div>
           ))}
         </div>

@@ -57,7 +57,6 @@ const authMe = withApiErrorHandler<{
   req.session.loggedIn = true;
   await req.session.save();
 
-  console.log(req.session);
   res.status(200).send({ profile_image_url: token.profile.profile_image_url });
 });
 

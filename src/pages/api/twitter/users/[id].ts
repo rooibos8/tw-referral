@@ -31,16 +31,18 @@ const getTwitterProfile = withApiErrorHandler<GetTwitterProfileApiResponse>(
       throw { status: 400, statusText: 'BAD REQUEST' };
     }
 
-    let resData: UserDoc & {
-      tweets?: Array<Tweet>;
-      twitter?: TwitterProfile;
-    } = applier;
     const profile = await twitterApi.findUser(
       twitter.token,
       applier.twitter_id
     );
-    resData.twitter = profile;
-    res.status(200).send(resData);
+    if (typeof profile === 'undefined') {
+      throw { status: 404, statusText: 'Twitter user does not exist' };
+    }
+
+    res.status(200).send({
+      ...applier,
+      twitter: profile,
+    });
   }
 );
 

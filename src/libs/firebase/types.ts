@@ -65,6 +65,14 @@ export type JudgeHistoryDoc = {
   };
 };
 
+export type JudgeHistory = {
+  doc_id: string;
+  data: {
+    twitter: TwitterUserInfo;
+    judged_at: Date;
+  };
+};
+
 export type AppSettingsDoc = {
   cotoha: {
     access_token: string;

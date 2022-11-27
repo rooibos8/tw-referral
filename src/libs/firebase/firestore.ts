@@ -1,7 +1,5 @@
 import { Timestamp } from 'firebase-admin/firestore';
 
-import { useId } from 'react';
-
 import { db } from './';
 
 import type {
@@ -11,6 +9,7 @@ import type {
   ListFormDoc,
   JudgeHistoryDoc,
   ListFormApplierDoc,
+  JudgeHistory,
 } from './types';
 import type {
   PartialWithFieldValue,
@@ -126,24 +125,22 @@ export const createUser = async (newUser: {
     can_create_form: boolean;
   };
 }): Promise<UserDoc> => {
-  let ref;
-  if (typeof newUser.doc_id === 'undefined') {
-    ref = db.doc('users');
-  } else {
-    ref = db.doc(`users/${newUser.doc_id}`);
-  }
   const now = new Date();
-  const user: UserDoc = {
+  const isNew = typeof newUser.doc_id === 'undefined';
+  if (isNew) {
+    newUser.doc_id = db.collection('users').doc().id;
+  }
+  const user = {
     ...newUser,
-    doc_id: typeof newUser.doc_id !== 'undefined' ? newUser.doc_id : ref.id,
     data: {
       ...newUser.data,
-      created_at: Timestamp.fromDate(now),
       updated_at: Timestamp.fromDate(now),
+      ...(isNew ? { created_at: Timestamp.fromDate(now) } : {}),
     },
   };
-  await ref.set(user, { merge: true });
-  return user;
+  await db.doc(`users/${newUser.doc_id}`).set(user, { merge: true });
+
+  return user as UserDoc;
 };
 
 export const findUserById = async (
@@ -190,15 +187,14 @@ export const createListForm = async (
   listMembers: Array<TwitterUserInfo>
 ): Promise<string> => {
   const newListFormId = await db.runTransaction(async (transaction) => {
-    // フォームの作成
-    const existsList = await findFormByTwitterListId(user.id, list.id);
-    const newListFormDocRef =
-      typeof existsList === 'undefined'
-        ? db.doc(`users/${user.id}/list_forms`)
-        : db.doc(`users/${user.id}/list_forms/${existsList.doc_id}`);
+    let existsList = await findFormByTwitterListId(list.id);
+
     const now = new Date();
-    await transaction.set(newListFormDocRef, {
-      doc_id: newListFormDocRef.id,
+    const newData = {
+      doc_id:
+        typeof existsList === 'undefined'
+          ? db.collection(`users/${user.id}/list_forms`).doc().id
+          : existsList.doc_id,
       twitter_list_id: list.id,
       data: {
         user: {
@@ -211,9 +207,18 @@ export const createListForm = async (
         },
         status: LIST_FORM_STATUS.OPEN,
         updated_at: Timestamp.fromDate(now),
-        created_at: existsList?.data.created_at ?? Timestamp.fromDate(now),
+        created_at:
+          typeof existsList === 'undefined'
+            ? Timestamp.fromDate(now)
+            : existsList.data.created_at,
       },
-    });
+    };
+
+    // フォームの作成
+    await transaction.set(
+      db.doc(`users/${user.id}/list_forms/${newData.doc_id}`),
+      newData
+    );
 
     // メンバーの追加
     if (listMembers.length > 0) {
@@ -242,14 +247,9 @@ export const createListForm = async (
             (isMemberExists && !isAllowedHistoryExists) ||
             (!isMemberExists && !isAllowedHistoryExists)
           ) {
-            const userRef = (
-              !isMemberExists
-                ? db.doc('users')
-                : db.doc(`users/${(memberExists as UserDoc).doc_id}`)
-            ) as DocumentReference<UserDoc>;
             const now = new Date();
-            transaction.set(userRef, {
-              doc_id: memberExists?.doc_id ?? userRef.id,
+            const docData = {
+              doc_id: memberExists?.doc_id ?? db.collection('users').doc().id,
               twitter_id: member.id,
               data: {
                 twitter: member,
@@ -261,8 +261,9 @@ export const createListForm = async (
                   memberExists?.data.created_at ?? Timestamp.fromDate(now),
                 updated_at: Timestamp.fromDate(now),
               },
-            });
-            memberUserId = userRef.id;
+            };
+            transaction.set(db.doc(`users/${docData.doc_id}`), docData);
+            memberUserId = docData.doc_id;
           } else {
             memberUserId = (memberExists as UserDoc).doc_id;
           }
@@ -289,7 +290,7 @@ export const createListForm = async (
       );
     }
 
-    return newListFormDocRef.id;
+    return newData.doc_id;
   });
   return newListFormId;
 };
@@ -439,10 +440,9 @@ export const findApplierByApplierId = async (
 };
 
 export const findFormByTwitterListId = async (
-  userId: string,
   twitterListId: string
 ): Promise<ListFormDoc | undefined> => {
-  return await _getDocByQuery<ListFormDoc>(`users/${userId}/list_forms`, [
+  return await _getDocByQuery<ListFormDoc>(`list_forms`, [
     'twitter_list_id',
     '==',
     twitterListId,
@@ -462,31 +462,63 @@ export const findFormsByApplierId = async (
 export const findUserAllowedHistoryByJudgedUserId = async (
   userId: string,
   allowedByUserId: string
-): Promise<JudgeHistoryDoc | undefined> => {
-  return await _getDoc<JudgeHistoryDoc>(
+): Promise<JudgeHistory | undefined> => {
+  const data = await _getDoc<JudgeHistoryDoc>(
     `users/${userId}/allowed_by/${allowedByUserId}`
   );
+  return data
+    ? {
+        ...data,
+        data: {
+          ...data.data,
+          judged_at: data.data.judged_at.toDate(),
+        },
+      }
+    : undefined;
 };
 
 export const findUserDeniedHistoryByJudgedUserId = async (
   userId: string,
   deniedByUserId: string
-): Promise<JudgeHistoryDoc | undefined> => {
-  return _getDoc<JudgeHistoryDoc>(
+): Promise<JudgeHistory | undefined> => {
+  const data = await _getDoc<JudgeHistoryDoc>(
     `users/${userId}/denied_by/${deniedByUserId}`
   );
+  return data
+    ? {
+        ...data,
+        data: {
+          ...data.data,
+          judged_at: data.data.judged_at.toDate(),
+        },
+      }
+    : undefined;
 };
 
 export const findUserAllowedHistoryByUserId = async (
   userId: string
-): Promise<Array<JudgeHistoryDoc>> => {
-  return await _getDocs<JudgeHistoryDoc>(`users/${useId}/allowed_by`);
+): Promise<Array<JudgeHistory>> => {
+  const data = await _getDocs<JudgeHistoryDoc>(`users/${userId}/allowed_by`);
+  return data.map((d) => ({
+    ...d,
+    data: {
+      ...d.data,
+      judged_at: d.data.judged_at.toDate(),
+    },
+  }));
 };
 
 export const findUserDeniedHistoryByUserId = async (
   userId: string
-): Promise<Array<JudgeHistoryDoc>> => {
-  return await _getDocs<JudgeHistoryDoc>(`users/${userId}/denied_by`);
+): Promise<Array<JudgeHistory>> => {
+  const data = await _getDocs<JudgeHistoryDoc>(`users/${userId}/denied_by`);
+  return data.map((d) => ({
+    ...d,
+    data: {
+      ...d.data,
+      judged_at: d.data.judged_at.toDate(),
+    },
+  }));
 };
 
 export const deleteUserAllowedHistoryByUserId = async (

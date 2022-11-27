@@ -37,11 +37,13 @@ const Profile: React.FC<UserProfileProps> = ({
     <div className={styles['user-profile-name']}>
       <div className={styles['user-profile-ai']}>
         <Text stress>{name}</Text>
-        {href ? <TwitterIcon className={styles.icon} /> : null}
+        {href ? <TwitterIcon classes={{ root: styles.icon }} /> : null}
         {over19 ? (
           <span className={styles['ai-verified']}>
             <VerifiedUser
-              className={clsx(styles['ai-verified-icon'], styles.icon)}
+              classes={{
+                root: clsx(styles['ai-verified-icon'], styles.icon),
+              }}
             />
             AI 19+
           </span>

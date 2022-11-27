@@ -4,10 +4,10 @@ import React from 'react';
 import variables from '@/styles/variables.module.scss';
 
 // @ts-ignore
-export const TwitterIcon = ({ className, ...props }) => (
+export const TwitterIcon = ({ classes, ...props }) => (
   <Twitter
     style={{ color: variables.twitterColor }}
-    className={className}
+    classes={classes}
     {...props}
   />
 );

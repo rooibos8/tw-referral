@@ -62,7 +62,6 @@ export type TwitterProfile = {
     tweet_count: number;
     listed_count: number;
   };
-  url: string;
   description: string;
   verified: boolean;
   protected: boolean;

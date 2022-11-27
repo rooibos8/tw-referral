@@ -12,8 +12,8 @@
 }
 
 .icon {
-  width: 0.7em;
-  height: 0.7em;
+  width: 0.7em !important;
+  height: 0.7em !important;
 }
 
 .user-profile-ai {
@@ -29,7 +29,5 @@
   font-size: 0.7em;
 }
 .ai-verified-icon {
-  width: 11px;
-  height: 11px;
   margin-right: 4px;
 }

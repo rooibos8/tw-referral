@@ -96,10 +96,18 @@
   justify-content: center;
 }
 
+.modal {
+  overflow: hidden;
+}
+
 .modal-root {
   background-color: $base-theme-color;
   color: $default-color;
-  padding: 16px;
+  padding: 16px 0;
+}
+
+.modal-header {
+  margin-right: 0;
 }
 
 .modal-body {
@@ -108,13 +116,14 @@
   grid-template-rows: 1.3em 1fr 1.3em 1fr;
   height: calc(100% - 44px);
   overflow: scroll;
-  width: 100vw;
-  max-width: 1000px;
-  transform: translate(-16px, 0);
 }
 
 .modal-close {
   color: $default-color;
+}
+
+.modal-list {
+  overflow-y: scroll;
 }
 
 .modal-list-item {

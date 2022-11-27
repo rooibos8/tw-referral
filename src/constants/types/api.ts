@@ -1,15 +1,14 @@
 import type { ListFormStatus, ApplyStatus } from '@/constants';
 
 import type {
-  JudgeHistoryDoc,
+  JudgeHistory,
   ListFormApplierDoc,
-  ListFormDoc,
   TwitterUserInfo,
   UserDoc,
   UserInfo,
 } from '@/libs/firebase';
 
-import { Tweet, TwitterProfile } from '@/libs/twitter';
+import { TwitterProfile } from '@/libs/twitter';
 
 export type Form = {
   id?: string;
@@ -37,13 +36,13 @@ export type GetAppliersApiResponse = {
 };
 
 export type GetTwitterProfileApiResponse = UserDoc & {
-  twitter?: TwitterProfile;
+  twitter: TwitterProfile;
 };
 
 export type GetJudgeHistoryApiResponse = {
   data: {
-    allowed: Array<JudgeHistoryDoc>;
-    denied: Array<JudgeHistoryDoc>;
+    allowed: Array<JudgeHistory>;
+    denied: Array<JudgeHistory>;
   };
 };
 
