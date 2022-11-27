@@ -3,6 +3,7 @@
   "serviceDescription": "성인용 콘텐츠를 트위터의 리스트로 공개하고 싶을 때 계정 나이 확인이 힘들어서 툴을 만들었어요!",
   "serviceDescription2": "혼자서 확인하기 힘들면 다 같이 결과 공유하면 되잖아!",
   "login": "Twitter 로그인",
+  "logout": "로그아웃",
   "yourList": "내 리스트",
   "back": "돌아가기",
   "getToOpenForm": "로 접수를 시작하시겠습니까?",

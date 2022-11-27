@@ -1,4 +1,5 @@
 import { Menu } from '@mantine/core';
+import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import React from 'react';
 
@@ -10,6 +11,7 @@ import { FlagIcon, UserIcon, Title } from '@/components';
 import { sessionState } from '@/store';
 
 const Header = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { locale } = router;
   const session = useRecoilValue(sessionState);
@@ -52,13 +54,13 @@ const Header = () => {
               </div>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item onClick={handleClickSignOut}>サインアウト</Menu.Item>
+              <Menu.Item onClick={handleClickSignOut}>{t('logout')}</Menu.Item>
             </Menu.Dropdown>
           </Menu>
         ) : null}
       </div>
       <div onClick={handleClickGoToTop} className={styles.title}>
-        <Title>tw-referral</Title>
+        <Title>tw-referral (β)</Title>
       </div>
       <div>
         <Menu position="bottom-end" withArrow>

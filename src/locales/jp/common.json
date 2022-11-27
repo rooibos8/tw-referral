@@ -3,6 +3,7 @@
   "serviceDescription": "成人向けコンテンツをTwitterでリスト公開したい時アカウントの年齢確認をするのが大変なのでツールを作りました！",
   "serviceDescription2": "１人で確認するのが大変ならみんなで結果をシェアすればいいじゃない！",
   "login": "Twitterでログイン",
+  "logout": "ログアウト",
   "yourList": "あなたのリスト",
   "back": "戻る",
   "getToOpenForm": "で受付を開始しますか？",
