@@ -1,4 +1,4 @@
-import { withSentry, captureException } from '@sentry/nextjs';
+import { withSentry } from '@sentry/nextjs';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 import * as cotohaApi from './cotoha';
@@ -40,8 +40,6 @@ export const withApiErrorHandler = <T>(
         if (process.env.NODE_ENV !== 'production') {
           console.log('api has an error');
           console.log(_e);
-        } else {
-          captureException(err);
         }
 
         if (_e.status && _e.statusText) {
@@ -57,6 +55,7 @@ export const withApiErrorHandler = <T>(
           }
         } else {
           res.status(500).send({ errorMessage: 'something happened.' });
+          throw err;
         }
       }
     }
