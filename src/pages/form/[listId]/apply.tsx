@@ -1,3 +1,4 @@
+import { captureMessage } from '@sentry/nextjs';
 import { useTranslation } from 'next-i18next';
 import Head from 'next/head';
 import React, { useEffect } from 'react';
@@ -27,6 +28,12 @@ export const getServerSideProps = withSessionSsr(async function ({
     notFound: false,
   };
   if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
+    captureMessage(
+      `Session invalid at form/${listId}/apply.tsx\nsession: ${req.session}`,
+      {
+        level: 'info',
+      }
+    );
     req.session.destroy();
     return {
       props: {
@@ -37,6 +44,16 @@ export const getServerSideProps = withSessionSsr(async function ({
     };
   }
 
+  captureMessage(
+    `Call api ${
+      process.env.NEXT_PUBLIC_BASE_URL
+    }/api/form/apply\ndata: ${JSON.stringify({ listId })}\nsession: ${
+      req.session
+    }`,
+    {
+      level: 'info',
+    }
+  );
   const applyRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/form/apply`,
     {

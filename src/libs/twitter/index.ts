@@ -1,5 +1,4 @@
-import { url } from 'inspector';
-
+import { captureMessage } from '@sentry/nextjs';
 import * as CryptoJS from 'crypto-js';
 
 import type {
@@ -51,7 +50,7 @@ const _get = async <R>(
 
     const data: R = await res.json();
     if (!res.ok) {
-      throw new Error('twitter api error', {
+      throw new Error('GET Twitter API response error', {
         cause: {
           res,
           data,
@@ -86,10 +85,10 @@ const _post = async <R>(
   },
   retry?: boolean
 ): Promise<R> => {
+  const fullUrl = `${process.env.TWITTER_API_V2_URL}${url}${
+    typeof params !== 'undefined' ? `?${new URLSearchParams(params)}` : ''
+  }`;
   try {
-    const fullUrl = `${process.env.TWITTER_API_V2_URL}${url}${
-      typeof params !== 'undefined' ? `?${new URLSearchParams(params)}` : ''
-    }`;
     const res = await fetch(fullUrl, {
       method: 'POST',
       headers: {
@@ -101,12 +100,17 @@ const _post = async <R>(
     });
     const data: R = await res.json();
     if (!res.ok) {
-      throw { res, data };
+      throw new Error('POST Twitter API response error', {
+        cause: { res, data },
+      });
     }
     return data;
   } catch (err) {
     const _e = err as { code: string };
     if (_e?.code === 'ETIMEDOUT' && !retry) {
+      captureMessage(`Retry calling api ${fullUrl} due to ETIMEDOUT`, {
+        level: 'info',
+      });
       return await _post(token, url, { params, body, headers }, true);
     }
     throw err;
@@ -130,7 +134,10 @@ export const getAccessToken = async (
     typeof code === 'undefined' &&
     typeof state === 'undefined'
   ) {
-    throw { status: 400, statusText: 'invalid token' };
+    throw {
+      status: 400,
+      statusText: 'invalid token',
+    };
   }
 
   const data = await _post<TwitterGetAccessTokenApiResponse>(
