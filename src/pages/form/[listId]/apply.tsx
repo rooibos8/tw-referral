@@ -29,7 +29,11 @@ export const getServerSideProps = withSessionSsr(async function ({
   };
   if (!isValidSession(req.session) || hasSessionExpired(req.session)) {
     captureMessage(
-      `Session invalid at form/${listId}/apply.tsx\nsession: ${req.session}`,
+      `Session invalid at form/${listId}/apply.tsx\nsession: ${JSON.stringify(
+        req.session,
+        null,
+        2
+      )}`,
       {
         level: 'info',
       }
@@ -47,9 +51,9 @@ export const getServerSideProps = withSessionSsr(async function ({
   captureMessage(
     `Call api ${
       process.env.NEXT_PUBLIC_BASE_URL
-    }/api/form/apply\ndata: ${JSON.stringify({ listId })}\nsession: ${
-      req.session
-    }`,
+    }/api/form/apply\ndata: ${JSON.stringify({
+      listId,
+    })}\nsession: ${JSON.stringify(req.session, null, 2)}`,
     {
       level: 'info',
     }
