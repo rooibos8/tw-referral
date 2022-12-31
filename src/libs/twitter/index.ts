@@ -326,8 +326,9 @@ export const findListMembers = async (
     // ページが存在し、かつフィルターを満たしていない間は実行
     nextPageToken !== '' &&
     typeof nextPageToken !== 'undefined' &&
-    filterTwitterIds.length > 0 &&
-    filterTwitterIds.length !== members.length
+    (filterTwitterIds.length === 0 ||
+      (filterTwitterIds.length > 0 &&
+        filterTwitterIds.length !== members.length))
   );
   return members;
 };
