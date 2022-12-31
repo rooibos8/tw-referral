@@ -96,6 +96,16 @@ export const getServerSideProps = withSessionSsr(async function ({
     };
   }
   if (!applyRes.ok || typeof applyRes === 'undefined') {
+    captureMessage(
+      `何かが悪くてトップへリダイレクトされる\napplyRes: ${JSON.stringify(
+        applyRes,
+        null,
+        2
+      )}`,
+      {
+        level: 'info',
+      }
+    );
     return {
       redirect: {
         destination: '/',
