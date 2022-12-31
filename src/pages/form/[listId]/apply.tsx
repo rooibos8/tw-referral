@@ -74,6 +74,12 @@ export const getServerSideProps = withSessionSsr(async function ({
   }
 
   if (applyRes.status === 406) {
+    captureMessage(
+      `List Is Not Available\napplyRes: ${JSON.stringify(applyRes, null, 2)}`,
+      {
+        level: 'info',
+      }
+    );
     return {
       props: {
         ...defaultProps,
@@ -81,6 +87,12 @@ export const getServerSideProps = withSessionSsr(async function ({
       },
     };
   } else if (applyRes.status === 404) {
+    captureMessage(
+      `List Not Found\napplyRes: ${JSON.stringify(applyRes, null, 2)}`,
+      {
+        level: 'info',
+      }
+    );
     return {
       props: {
         ...defaultProps,
@@ -88,6 +100,16 @@ export const getServerSideProps = withSessionSsr(async function ({
       },
     };
   } else if (applyRes.status === 202) {
+    captureMessage(
+      `Can Not Request Own List\napplyRes: ${JSON.stringify(
+        applyRes,
+        null,
+        2
+      )}`,
+      {
+        level: 'info',
+      }
+    );
     return {
       props: {
         ...defaultProps,
@@ -97,7 +119,7 @@ export const getServerSideProps = withSessionSsr(async function ({
   }
   if (!applyRes.ok || typeof applyRes === 'undefined') {
     captureMessage(
-      `何かが悪くてトップへリダイレクトされる\napplyRes: ${JSON.stringify(
+      `何かが悪くてトップへリダイレクトされている\napplyRes: ${JSON.stringify(
         applyRes,
         null,
         2
